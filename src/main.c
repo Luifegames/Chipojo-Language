@@ -1,4 +1,6 @@
 #include "lizard.h"
+#include "lexer.h"
+#include "parser.h"
 
 extern char *input;
 extern int indx;
@@ -22,7 +24,7 @@ int main(int argc, char **argv)
     FILE *f = fopen(argv[1], "rb");
     if (!f)
     {
-        printf("no se puede abrir %s\n", argv[1]);
+        printf("Can't open %s\n", argv[1]);
         return 1;
     }
     fseek(f, 0, SEEK_END);

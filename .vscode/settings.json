@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "rc_versioninfo": "properties",
+        "rc_runtime": "properties",
+        "lexer.h": "c"
+    }
+}
