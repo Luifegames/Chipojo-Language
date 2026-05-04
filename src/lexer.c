@@ -29,7 +29,8 @@ TypeToken peek_next_token_type(void)
     return type;
 }
 
-Token nextToken(){
+Token nextToken()
+{
     jumpBlankspace();
     Token t;
     char c = currentChar();
@@ -38,8 +39,10 @@ Token nextToken(){
         t.type = TOKEN_EOF;
         return t;
     }
-    //var and identificator
-    if (isalpha((unsigned char) c)){
+
+    // Identificators and key word
+    if (isalpha((unsigned char)c))
+    {
         int i = 0;
         while (isalnum((unsigned char)currentChar()) && i < 63)
         {
@@ -47,22 +50,20 @@ Token nextToken(){
             nextChar();
         }
         t.name[i] = '\0';
-
-        if (strcmp(t.name, "print") == 0){
+        if (strcmp(t.name, "print") == 0)
             t.type = TOKEN_PRINT;
-        }
         else if (strcmp(t.name, "if") == 0)
             t.type = TOKEN_IF;
         else if (strcmp(t.name, "else") == 0)
             t.type = TOKEN_ELSE;
         else if (strcmp(t.name, "elif") == 0)
             t.type = TOKEN_ELIF;
-        else{
+        else if (strcmp(t.name, "while") == 0)
+            t.type = TOKEN_WHILE;
+        else
             t.type = TOKEN_ID;
-        }
         return t;
     }
-
     // Number
     if (isdigit((unsigned char)c))
     {
@@ -76,13 +77,15 @@ Token nextToken(){
         return t;
     }
 
-    //String
-    if (c == '"'){
+    // String
+    if (c == '"')
+    {
         nextChar();
         int i = 0;
-        while (isalnum((unsigned char)currentChar()) && i < 63)
+        while (currentChar() != '"' && currentChar() != '\0')
         {
-            t.name[i++] = currentChar();
+            if (i < 63)
+                t.name[i++] = currentChar();
             nextChar();
         }
         if (currentChar() == '"')
@@ -94,11 +97,10 @@ Token nextToken(){
         else
         {
             t.type = TOKEN_ERROR;
-            printf("Lizzard Error:String unclosed\n");
+            printf("Error: cadena no cerrada\n");
         }
         return t;
     }
-
     // Operator
     if (c == '=' && peekChar() == '=')
     {
@@ -107,7 +109,7 @@ Token nextToken(){
         nextChar();
         return t;
     }
-    
+
     if (c == '+' && peekChar() == '+')
     {
         t.type = TOKEN_INC;
@@ -196,7 +198,7 @@ Token nextToken(){
         return t;
     }
 
-    //  Sign
+    // Sign
     switch (c)
     {
     case '=':
@@ -215,10 +217,10 @@ Token nextToken(){
         t.type = TOKEN_DIV;
         break;
     case '(':
-        t.type = TOKEN_LEFTPARENT;
+        t.type = TOKEN_PARENTLEFT;
         break;
     case ')':
-        t.type = TOKEN_RIGHTPARENT;
+        t.type = TOKEN_PARENTRIGHT;
         break;
     case '{':
         t.type = TOKEN_LEFTBRACE;

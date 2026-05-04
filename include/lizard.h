@@ -23,14 +23,15 @@ typedef enum
     TOKEN_REST,
     TOKEN_MUL,
     TOKEN_DIV,
-    TOKEN_EQ,           //  ==
-    TOKEN_NE,           //\ !=
-    TOKEN_LT,           //  <
-    TOKEN_GT,           //  >
-    TOKEN_LE,           //  <=
-    TOKEN_GE,           //  >=
-    TOKEN_LEFTPARENT,   //  (
-    TOKEN_RIGHTPARENT,  //  )
+    TOKEN_EQ,          //  ==
+    TOKEN_NE,          //\ !=
+    TOKEN_LT,          //  <
+    TOKEN_GT,          //  >
+    TOKEN_LE,          //  <=
+    TOKEN_GE,          //  >=
+    TOKEN_PARENTLEFT,  //  (
+    TOKEN_PARENTRIGHT, //  )
+    TOKEN_WHILE,
     TOKEN_INC,          //\ ++
     TOKEN_DEC,          //\ --
     TOKEN_PLUS_ASSIGN,  //\ +=

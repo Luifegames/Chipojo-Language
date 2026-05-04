@@ -38,7 +38,6 @@ void if_stmt()
     else
     {
         skip_block();
-        
     }
 
     while (current_token.type == TOKEN_ELIF)
@@ -46,32 +45,16 @@ void if_stmt()
         forward();
         int elif_cond = expression();
         consume(TOKEN_LEFTBRACE, "{ error");
-        if (!executed && elif_cond != 0){
+        if (!executed && elif_cond != 0)
+        {
             block();
             executed = 1;
-        }else{
-            skip_block();
-        }
-    }
-    
-
-    // if exist else
-    if (current_token.type == TOKEN_ELSE)
-    {
-        forward();
-        consume(TOKEN_LEFTBRACE, "{ error");
-        if (executed == 0)
-        {
-            // Execute if block
-            block();
         }
         else
         {
-           skip_block();
-
+            skip_block();
         }
     }
-
 
     // if exist else
     if (current_token.type == TOKEN_ELSE)
@@ -140,7 +123,8 @@ void block()
             assignation();
         else if (current_token.type == TOKEN_IF)
             if_stmt();
-        
+        else if (current_token.type == TOKEN_WHILE)
+            while_stmt();
         else
         {
             printf("Error invalid sentence in block (token %d)\n", current_token.type);
@@ -275,11 +259,11 @@ int factor()
 
         return getIntVar(name);
     }
-    else if (current_token.type == TOKEN_LEFTPARENT)
+    else if (current_token.type == TOKEN_PARENTLEFT)
     {
         forward();
         int val = expression();
-        consume(TOKEN_RIGHTPARENT, "Falta ')'");
+        consume(TOKEN_PARENTRIGHT, "Falta ')'");
         return val;
     }
     else
@@ -455,9 +439,9 @@ void print_concat()
 void print_stmt()
 {
     consume(TOKEN_PRINT, "not found 'print'");
-    consume(TOKEN_LEFTPARENT, "not found '('");
+    consume(TOKEN_PARENTLEFT, "not found '('");
     print_concat();
-    consume(TOKEN_RIGHTPARENT, "no found')'");
+    consume(TOKEN_PARENTRIGHT, "no found')'");
 }
 
 void program()
@@ -480,7 +464,10 @@ void program()
         {
             if_stmt();
         }
-       
+        else if (current_token.type == TOKEN_WHILE)
+        {
+            while_stmt();
+        }
         else
         {
             printf("Error, invalid statement (token %d)\n", current_token.type);
