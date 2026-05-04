@@ -11,6 +11,9 @@ int term();
 int factor();
 void assignation();
 void print_stmt();
+void if_stmt();
+void block();
+void skip_block();
 void program();
 
 #endif

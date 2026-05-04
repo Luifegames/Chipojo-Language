@@ -21,6 +21,134 @@ int comparison_op(int left, TypeToken op, int right);
 void concat_element(char *buffer, size_t buffsize);
 void print_concat();
 
+void if_stmt()
+{
+    consume(TOKEN_IF, "if error");
+    int cond = expression();
+    consume(TOKEN_LEFTBRACE, "{ error");
+
+    int executed = 0;
+
+    if (cond != 0)
+    {
+        // Execute if block
+        block();
+        executed = 1;
+    }
+    else
+    {
+        skip_block();
+        
+    }
+
+    while (current_token.type == TOKEN_ELIF)
+    {
+        forward();
+        int elif_cond = expression();
+        consume(TOKEN_LEFTBRACE, "{ error");
+        if (!executed && elif_cond != 0){
+            block();
+            executed = 1;
+        }else{
+            skip_block();
+        }
+    }
+    
+
+    // if exist else
+    if (current_token.type == TOKEN_ELSE)
+    {
+        forward();
+        consume(TOKEN_LEFTBRACE, "{ error");
+        if (executed == 0)
+        {
+            // Execute if block
+            block();
+        }
+        else
+        {
+           skip_block();
+
+        }
+    }
+
+
+    // if exist else
+    if (current_token.type == TOKEN_ELSE)
+    {
+        forward();
+        consume(TOKEN_LEFTBRACE, "{ error");
+        if (executed == 0)
+        {
+            // Execute if block
+            block();
+        }
+        else
+        {
+            skip_block();
+        }
+    }
+}
+
+void while_stmt(void)
+{
+    int after_cond = indx;
+    int after_while = -1;
+    while (1)
+    {
+        indx = after_cond;
+        forward();
+        int cond = expression();
+        consume(TOKEN_LEFTBRACE, "Error {");
+        if (cond != 0)
+        {
+            block();
+        }
+        else
+        {
+            skip_block();
+            after_while = indx;
+            break;
+        }
+    }
+    indx = after_while;
+}
+
+void skip_block()
+{
+    int brace_count = 1;
+    while (brace_count > 0)
+    {
+        if (current_token.type == TOKEN_LEFTBRACE)
+            brace_count++;
+        else if (current_token.type == TOKEN_RIGHTBRACE)
+            brace_count--;
+        if (brace_count == 0)
+            break;
+        forward();
+    }
+    forward(); // consume
+}
+
+void block()
+{
+    while (current_token.type != TOKEN_RIGHTBRACE && current_token.type != TOKEN_EOF)
+    {
+        if (current_token.type == TOKEN_PRINT)
+            print_stmt();
+        else if (current_token.type == TOKEN_ID)
+            assignation();
+        else if (current_token.type == TOKEN_IF)
+            if_stmt();
+        
+        else
+        {
+            printf("Error invalid sentence in block (token %d)\n", current_token.type);
+            exit(1);
+        }
+    }
+    consume(TOKEN_RIGHTBRACE, "error }");
+}
 
 int expression()
 {
@@ -348,6 +476,11 @@ void program()
         {
             assignation();
         }
+        else if (current_token.type == TOKEN_IF)
+        {
+            if_stmt();
+        }
+       
         else
         {
             printf("Error, invalid statement (token %d)\n", current_token.type);

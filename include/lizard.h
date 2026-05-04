@@ -10,6 +10,9 @@
 typedef enum
 {
     TOKEN_ID,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_ELIF,
     TOKEN_LEFTBRACE,
     TOKEN_RIGHTBRACE,
     TOKEN_NUM,
@@ -20,14 +23,14 @@ typedef enum
     TOKEN_REST,
     TOKEN_MUL,
     TOKEN_DIV,
-    TOKEN_EQ,               //  ==
-    TOKEN_NE,               //\ !=
-    TOKEN_LT,               //  <
-    TOKEN_GT,               //  >
-    TOKEN_LE,               //  <=
-    TOKEN_GE,               //  >=
-    TOKEN_LEFTPARENT, //  (
-    TOKEN_RIGHTPARENT,      //  )
+    TOKEN_EQ,           //  ==
+    TOKEN_NE,           //\ !=
+    TOKEN_LT,           //  <
+    TOKEN_GT,           //  >
+    TOKEN_LE,           //  <=
+    TOKEN_GE,           //  >=
+    TOKEN_LEFTPARENT,   //  (
+    TOKEN_RIGHTPARENT,  //  )
     TOKEN_INC,          //\ ++
     TOKEN_DEC,          //\ --
     TOKEN_PLUS_ASSIGN,  //\ +=

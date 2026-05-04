@@ -51,6 +51,12 @@ Token nextToken(){
         if (strcmp(t.name, "print") == 0){
             t.type = TOKEN_PRINT;
         }
+        else if (strcmp(t.name, "if") == 0)
+            t.type = TOKEN_IF;
+        else if (strcmp(t.name, "else") == 0)
+            t.type = TOKEN_ELSE;
+        else if (strcmp(t.name, "elif") == 0)
+            t.type = TOKEN_ELIF;
         else{
             t.type = TOKEN_ID;
         }
@@ -94,6 +100,14 @@ Token nextToken(){
     }
 
     // Operator
+    if (c == '=' && peekChar() == '=')
+    {
+        t.type = TOKEN_EQ;
+        nextChar();
+        nextChar();
+        return t;
+    }
+    
     if (c == '+' && peekChar() == '+')
     {
         t.type = TOKEN_INC;
