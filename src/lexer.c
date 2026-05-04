@@ -4,6 +4,7 @@ int indx = 0;
 
 void nextChar(void) { indx++; }
 char currentChar(void) { return input[indx]; }
+static char peekChar(void) { return input[indx + 1]; }
 
 void jumpBlankspace(void)
 {
@@ -92,11 +93,112 @@ Token nextToken(){
         return t;
     }
 
-    //sign
+    // Operator
+    if (c == '+' && peekChar() == '+')
+    {
+        t.type = TOKEN_INC;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '+' && peekChar() == '=')
+    {
+        t.type = TOKEN_PLUS_ASSIGN;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '-' && peekChar() == '=')
+    {
+        t.type = TOKEN_MINUS_ASSIGN;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '*' && peekChar() == '=')
+    {
+        t.type = TOKEN_MULT_ASSIGN;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '/' && peekChar() == '=')
+    {
+        t.type = TOKEN_DIV_ASSIGN;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '-' && peekChar() == '-')
+    {
+        t.type = TOKEN_DEC;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '!' && peekChar() == '=')
+    {
+        t.type = TOKEN_NE;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '<' && peekChar() == '=')
+    {
+        t.type = TOKEN_LE;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '>' && peekChar() == '=')
+    {
+        t.type = TOKEN_GE;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '<')
+    {
+        t.type = TOKEN_LT;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    if (c == '>')
+    {
+        t.type = TOKEN_GT;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
+    //  Sign
     switch (c)
     {
     case '=':
         t.type = TOKEN_ASIGN;
+        break;
+    case '+':
+        t.type = TOKEN_SUM;
+        break;
+    case '-':
+        t.type = TOKEN_REST;
+        break;
+    case '*':
+        t.type = TOKEN_MUL;
+        break;
+    case '/':
+        t.type = TOKEN_DIV;
         break;
     case '(':
         t.type = TOKEN_LEFTPARENT;
@@ -104,7 +206,12 @@ Token nextToken(){
     case ')':
         t.type = TOKEN_RIGHTPARENT;
         break;
-
+    case '{':
+        t.type = TOKEN_LEFTBRACE;
+        break;
+    case '}':
+        t.type = TOKEN_RIGHTBRACE;
+        break;
     default:
         nextChar();
         return nextToken();
