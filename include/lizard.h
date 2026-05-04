@@ -38,6 +38,8 @@ typedef enum
     TOKEN_MINUS_ASSIGN, //\ -=
     TOKEN_MULT_ASSIGN,  //\ *=
     TOKEN_DIV_ASSIGN,   //\ /=
+    TOKEN_TRUE,
+    TOKEN_FALSE,
     TOKEN_ERROR,
     TOKEN_EOF
 } TypeToken;
@@ -56,7 +58,8 @@ extern int g_line;
 typedef enum
 {
     VAR_INT,
-    VAR_STRING
+    VAR_STRING,
+    VAR_BOOL
 } VarType;
 
 typedef struct
@@ -67,6 +70,7 @@ typedef struct
     {
         int int_val;
         char str_val[256];
+        
     } value;
 } Var;
 

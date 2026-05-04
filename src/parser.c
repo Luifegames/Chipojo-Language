@@ -237,9 +237,19 @@ int factor()
         forward();
         return new_val;
     }
-
+    // Boolean
+    if (current_token.type == TOKEN_TRUE)
+    {
+        forward();
+        return 1;
+    }
+    if (current_token.type == TOKEN_FALSE)
+    {
+        forward();
+        return 0; 
+    }
     // Number
-    if (current_token.type == TOKEN_NUM)
+    else if (current_token.type == TOKEN_NUM)
     {
         int val = current_token.value;
         forward();
@@ -331,7 +341,7 @@ void assignation()
     if (current_token.type == TOKEN_ID)
     {
         strcpy(name, current_token.name);
-        forward(); // consumir ID
+        forward(); //Consume ID
         if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
         {
             TypeToken op = current_token.type;

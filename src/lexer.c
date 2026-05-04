@@ -67,6 +67,10 @@ Token nextToken()
             t.type = TOKEN_ELIF;
         else if (strcmp(t.name, "while") == 0)
             t.type = TOKEN_WHILE;
+        else if (strcmp(t.name, "true") == 0)
+            t.type = TOKEN_TRUE;
+        else if (strcmp(t.name, "false") == 0)
+            t.type = TOKEN_FALSE;
         else
             t.type = TOKEN_ID;
         return t;
