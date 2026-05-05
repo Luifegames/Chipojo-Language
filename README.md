@@ -85,13 +85,13 @@ Lizard/
 │   ├── variables.h
 │   └── utils.h
 └── src/
-│   ├── error.c
-│   ├── lexer.c
+    ├── error.c
+    ├── lexer.c
     ├── main.c
     ├── lexer.c
     ├── parser.c
     ├── variables.c
     └── utils.c
 ```
-MIT – free to use and modify.
 ## License
+MIT – free to use and modify.
