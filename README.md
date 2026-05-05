@@ -5,8 +5,9 @@
 ## Features
 
 - **Variables** – integers, float, boolean and strings  
+- **Comments** – `//, /*...*/ `
 - **Assignment** – `=`  
-- **Logical Operator** – `and, or, not`  
+- **Logical Operator** – `and, or, not`
 - **Compound Assignment** – `= += -= *= /=`  
 - **Arithmetic** – `+ - * / ++ --` and parentheses  
 - **Comparisons** – `== != < > <= >=` (return `1` or `0`)  
