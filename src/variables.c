@@ -34,6 +34,19 @@ void assignStringVar(char *name, char *val)
     num_vars++;
 }
 
+void assignNullVar(char *name)
+{
+    for (int i = 0; i < num_vars; i++)
+        if (strcmp(vars_table[i].name, name) == 0)
+        {
+            vars_table[i].type = VAR_NULL;
+            return;
+        }
+    strcpy(vars_table[num_vars].name, name);
+    vars_table[num_vars].type = VAR_NULL;
+    num_vars++;
+}
+
 Value getVarValue(char *name)
 {
     Value v;
@@ -44,7 +57,7 @@ Value getVarValue(char *name)
             v.type = vars_table[i].type;
             if (v.type == VAR_NUMBER)
                 v.value.num = vars_table[i].value.val;
-            else
+            if (v.type == VAR_STRING)
                 strcpy(v.value.str, vars_table[i].value.str_val);
             return v;
         }

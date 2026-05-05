@@ -91,6 +91,8 @@ Token nextToken()
             t.type = TOKEN_TRUE;
         else if (strcmp(t.name, "false") == 0)
             t.type = TOKEN_FALSE;
+        else if (strcmp(t.name, "null") == 0)
+            t.type = TOKEN_NULL;
         else
             t.type = TOKEN_ID;
         return t;

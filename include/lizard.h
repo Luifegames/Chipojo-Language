@@ -40,6 +40,7 @@ typedef enum
     TOKEN_DIV_ASSIGN,   //\ /=
     TOKEN_TRUE,
     TOKEN_FALSE,
+    TOKEN_NULL, // null
     TOKEN_ERROR,
     TOKEN_EOF
 } TypeToken;

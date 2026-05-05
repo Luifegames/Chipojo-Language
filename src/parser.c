@@ -27,7 +27,8 @@ void if_stmt()
     consume(TOKEN_IF, "if error");
     Value cond_val = expression();
     int cond = (cond_val.type == VAR_NUMBER && cond_val.value.num == 0) ||
-               (cond_val.type == VAR_STRING && cond_val.value.str[0] == '\0') ? 0 : 1;
+               (cond_val.type == VAR_STRING && cond_val.value.str[0] == '\0') ||
+               (cond_val.type == VAR_NULL) ? 0 : 1 ;
     
     consume(TOKEN_LEFTBRACE, "{ error");
 
@@ -49,7 +50,8 @@ void if_stmt()
         forward();
         Value elif_cond_val = expression();
         int elif_cond = (elif_cond_val.type == VAR_NUMBER && elif_cond_val.value.num == 0) ||
-                                (elif_cond_val.type == VAR_STRING && elif_cond_val.value.str[0] == '\0')? 0: 1;
+                        (elif_cond_val.type == VAR_STRING && elif_cond_val.value.str[0] == '\0')||
+                        (elif_cond_val.type == VAR_NULL) ? 0 : 1 ;
         consume(TOKEN_LEFTBRACE, "{ error");
         if (!executed && elif_cond != 0)
         {
@@ -89,7 +91,8 @@ void while_stmt(void)
         forward();
         Value cond_val = expression();
          int cond = (cond_val.type == VAR_NUMBER && cond_val.value.num == 0) ||
-               (cond_val.type == VAR_STRING && cond_val.value.str[0] == '\0') ? 0 : 1;
+               (cond_val.type == VAR_STRING && cond_val.value.str[0] == '\0')||
+               (cond_val.type == VAR_NULL) ? 0 : 1 ;
     
         consume(TOKEN_LEFTBRACE, "Error {");
         if (cond != 0)
@@ -171,36 +174,41 @@ Value arith_expr()
         forward();
         Value right = term();
 
-        if (left.type == VAR_NUMBER && right.type == VAR_NUMBER)
-        {
-            if (op == TOKEN_SUM)
-                left.value.num += right.value.num;
+        if (left.type == VAR_NULL || right.type == VAR_NULL){
+            syntax_error("Operation with null",token);
+            exit(1);
+        }
+
+            if (left.type == VAR_NUMBER && right.type == VAR_NUMBER)
+            {
+                if (op == TOKEN_SUM)
+                    left.value.num += right.value.num;
+                else
+                    left.value.num -= right.value.num;
+            }
+            else if (left.type == VAR_STRING && right.type == VAR_STRING && op == TOKEN_SUM)
+            {
+                char tmp[512];
+                snprintf(tmp, sizeof(tmp), "%s%s", left.value.str, right.value.str);
+                strcpy(left.value.str, tmp);
+            }
+            else if (left.type == VAR_STRING && right.type == VAR_NUMBER && op == TOKEN_SUM)
+            {
+                char tmp[512];
+                snprintf(tmp, sizeof(tmp), "%s%g", left.value.str, right.value.num);
+                strcpy(left.value.str, tmp);
+            }
+            else if (left.type == VAR_NUMBER && right.type == VAR_STRING && op == TOKEN_SUM)
+            {
+                char tmp[512];
+                snprintf(tmp, sizeof(tmp), "%g%s", left.value.num, right.value.str);
+                strcpy(left.value.str, tmp);
+                left.type = VAR_STRING;
+            }
             else
-                left.value.num -= right.value.num;
-        }
-        else if (left.type == VAR_STRING && right.type == VAR_STRING && op == TOKEN_SUM)
-        {
-            char tmp[512];
-            snprintf(tmp, sizeof(tmp), "%s%s", left.value.str, right.value.str);
-            strcpy(left.value.str, tmp);
-        }
-        else if (left.type == VAR_STRING && right.type == VAR_NUMBER && op == TOKEN_SUM)
-        {
-            char tmp[512];
-            snprintf(tmp, sizeof(tmp), "%s%g", left.value.str, right.value.num);
-            strcpy(left.value.str, tmp);
-        }
-        else if (left.type == VAR_NUMBER && right.type == VAR_STRING && op == TOKEN_SUM)
-        {
-            char tmp[512];
-            snprintf(tmp, sizeof(tmp), "%g%s", left.value.num, right.value.str);
-            strcpy(left.value.str, tmp);
-            left.type = VAR_STRING;
-        }
-        else
-        {
-            syntax_error("Error bad Arith",token);
-        }
+            {
+                syntax_error("Error bad Arith", token);
+            }
     }
     return left;
 }
@@ -262,6 +270,33 @@ Value comparison_op(Value left, TypeToken op, Value right,int line)
             syntax_error_line("Wrong operation",line);
         }
     }
+    else if (left.type == VAR_NULL && right.type == VAR_NULL){
+        switch (op)
+        {
+        case TOKEN_EQ:
+            result = 1;
+            break;
+        case TOKEN_NE:
+            result = 0;
+            break;
+        default:
+            syntax_error_line("Wrong operation with null", line);
+        }
+    }
+    else if (left.type == VAR_NULL || right.type == VAR_NULL)
+    {
+        switch (op)
+        {
+        case TOKEN_EQ:
+            result = 0;
+            break;
+        case TOKEN_NE:
+            result = 1;
+            break;
+        default:
+            syntax_error_line("Wrong operation with null", line);
+        }
+    }
     else
     {
         switch (op)
@@ -291,6 +326,12 @@ Value term()
         TypeToken op = current_token.type;
         forward();
         Value right = factor();
+
+        if (left.type == VAR_NULL || right.type == VAR_NULL)
+        {
+            syntax_error("Operation with null", token);
+            exit(1);
+        }
 
         if (left.type == VAR_NUMBER && right.type == VAR_NUMBER)
         {
@@ -340,15 +381,13 @@ Value term()
             v.type = VAR_NUMBER;
             v.value.num = new_val;
             return v;
-        }
+        }else if (current_token.type == TOKEN_TRUE)
         // Boolean
-        if (current_token.type == TOKEN_TRUE)
         {
             forward();
             v.value.num = 1;
             return v;
-        }
-        if (current_token.type == TOKEN_FALSE)
+        }else if (current_token.type == TOKEN_FALSE)
         {
             forward();
             v.value.num = 0;
@@ -386,10 +425,17 @@ Value term()
             consume(TOKEN_PARENTRIGHT, "Falta ')'");
             return v;
         }
-        else if (current_token.type == TOKEN_STRING){
+        else if (current_token.type == TOKEN_STRING)
+        {
 
             strcpy(v.value.str, current_token.name);
             v.type = VAR_STRING;
+            forward();
+            return v;
+        }
+        else if (current_token.type == TOKEN_NULL)
+        {
+            v.type = VAR_NULL;
             forward();
             return v;
         }
@@ -492,6 +538,10 @@ void assignation()
     {
         assignStringVar(name, val.value.str);
     }
+    if (val.type == VAR_NULL)
+    {
+        assignNullVar(name);
+    }
     else
     {
         assignNumberVar(name, val.value.num);
@@ -512,6 +562,7 @@ void concat_element(char *buffer, size_t buffsize)
         char var_name[64];
         strcpy(var_name, current_token.name);
         TypeToken next = peek_next_token_type();
+
         if (next == TOKEN_INC || next == TOKEN_DEC)
         {
             Value val = factor();
@@ -530,6 +581,10 @@ void concat_element(char *buffer, size_t buffsize)
                     {
                         strncat(buffer, vars_table[i].value.str_val, buffsize - strlen(buffer) - 1);
                     }
+                    else if (vars_table[i].type == VAR_NULL)
+                    {
+                        strncat(buffer, "null", buffsize - strlen(buffer) - 1);
+                    }
                     else
                     {
                         snprintf(temp, sizeof(temp), "%g", vars_table[i].value.val);
@@ -545,6 +600,10 @@ void concat_element(char *buffer, size_t buffsize)
                 exit(1);
             }
         }
+    }
+    else if (current_token.type == TOKEN_NULL){
+        snprintf(temp, sizeof(temp), "null");
+        strncat(buffer, temp, buffsize - strlen(buffer) - 1);
     }
     else
     {

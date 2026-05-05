@@ -9,7 +9,7 @@ typedef enum
 {
     VAR_NUMBER,
     VAR_STRING,
-    VAR_BOOL
+    VAR_NULL
 } VarType;
 
 typedef struct
@@ -37,6 +37,7 @@ typedef struct
 
 void assignNumberVar(char *name, double val);
 void assignStringVar(char *name, char *val);
+void assignNullVar(char *name);
 Value getVarValue(char *name);
 
 extern Var vars_table[];
