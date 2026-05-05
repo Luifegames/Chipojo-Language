@@ -283,7 +283,7 @@ Value comparison_op(Value left, TypeToken op, Value right,int line)
             result = (l >= r);
             break;
         default:
-            printf("Wrong operation");
+            syntax_error_line("Wrong operation",line);
         }
     }
     else if (left.type == VAR_STRING && right.type == VAR_STRING)
@@ -679,7 +679,8 @@ void print_concat()
         concat_element(buffer, sizeof(buffer));
     }
 
-    printf("%s\n", buffer);
+    fwrite(buffer, 1, strlen(buffer), stdout);
+    printf("\n");
 }
 
 void print_stmt()

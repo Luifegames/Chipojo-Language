@@ -6,7 +6,7 @@ void print_version()
     printf("\n");
     printf("Lizard Language Interpreter\n");
     printf("by Luife\n");
-    printf("Version 0.3.0\n");
+    printf("Version 0.5.1\n");
     printf("\n");
     printf("\n");
     printf(" _                            _\n");
