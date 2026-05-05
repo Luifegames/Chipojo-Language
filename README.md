@@ -12,7 +12,7 @@
 - **Print** – `print(...)` with `+` concatenation (strings, ints, variables)  
 - **Conditionals** – `if`, `elif`, `else` with `{ }` blocks  
 - **Loops** – `while`  
-- **File extension** – `.gtr`  
+- **File extension** – `.lzd`  
 - **Version** – `Lizard -v` shows ASCII art
 
 ## Building
