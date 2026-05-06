@@ -56,7 +56,7 @@ Value logical_and(void) {
         forward();
         Value right = comparison_expr();
         if (!is_truthy(left)) {
-            // Cortocircuito: false, devuelve 0
+            
             Value v; v.type = VAR_NUMBER; v.value.num = 0; return v;
         } else {
             int truthy = is_truthy(right);
@@ -75,7 +75,6 @@ void if_stmt()
     Value cond_val = expression();
     int cond = is_truthy(cond_val);
 
-    //    (cond_val.type == VAR_NULL) ? 0 : 1 ;
     
     consume(TOKEN_LEFTBRACE, "{ error");
 
@@ -592,8 +591,9 @@ void assignation()
     if (val.type == VAR_STRING)
     {
         assignStringVar(name, val.value.str);
+        
     }
-    if (val.type == VAR_NULL)
+    else if (val.type == VAR_NULL)
     {
         assignNullVar(name);
     }

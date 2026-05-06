@@ -84,13 +84,55 @@ Lizard/
 │   ├── variables.h
 │   └── utils.h
 └── src/
-│   ├── error.c
-│   ├── lexer.c
+    ├── error.c
+    ├── lexer.c
     ├── main.c
     ├── lexer.c
     ├── parser.c
     ├── variables.c
     └── utils.c
 ```
-MIT – free to use and modify.
 ## License
+MIT – free to use and modify.
+
+
+## Installation Lizard Language for VS Code
+
+1. Download the latest `.vsix` file from the [Releases](https://github.com/Luifegames/lizard-language/releases) page of this repository.
+
+2. Open **VS Code**.
+
+3. Go to the Extensions view:
+   - Press `Ctrl+Shift+X`
+   - Or click the Extensions icon in the Activity Bar.
+
+4. Click on the `...` (More Actions) menu and select **"Install from VSIX..."**.
+
+5. Choose the `.vsix` file you downloaded.
+
+6. Reload VS Code when prompted.
+
+## Usage
+
+Once installed, the extension automatically activates when you open a `.lzd` file.
+
+- Keywords (`if`, `else`, `while`, `print`, `and`, `or`, `not`) will have syntax highlighting.
+- Strings, numbers, comments, and operators are also highlighted.
+
+### Example
+
+Open a file named `hello.lzd`:
+
+```lizard
+name = "Lizard"
+size = 10
+
+if (size >= 10) {
+    print("Welcome to " + name + "!")
+} else {
+    print("too small")
+}
+
+print("2 + 2 = " + (2 + 2))
+print("5 > 3 is " + (5 > 3))
+```

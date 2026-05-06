@@ -68,10 +68,10 @@ Token nextToken()
     }
 
     // Identificators and key word
-    if (isalpha((unsigned char)c))
+    if (isalpha((unsigned char)c) || currentChar() == '_')
     {
         int i = 0;
-        while (isalnum((unsigned char)currentChar()) && i < 63)
+        while ((isalnum((unsigned char)currentChar()) || currentChar() =='_') && i < 63)
         {
             t.name[i++] = currentChar();
             nextChar();
