@@ -1,6 +1,6 @@
 # 🦎 Lizard Language
 <div align="center">
-<img src="https://github.com/Luifegames/Lizard-Language/blob/0db712c4d36da15af7ac993005d159cca1e4a79a/icon.svg" alt="Logo Lizard Language" width="250" />
+<img src="https://github.com/Luifegames/Lizard-Language/blob/74f78dcaae82aeed552b0b00ab53031f4293c24a/icon.svg" alt="Logo Lizard Language" width="250" />
 </div>
 **Lizard** is a small, C‑based interpreted language designed for learning and experimentation. It supports variables, arithmetic, comparisons, conditionals, and string concatenation in `print` statements.
 
