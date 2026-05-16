@@ -81,6 +81,7 @@ Lizard/
 ├── Makefile
 ├── include/          
 │   ├── error.h
+│   ├── io.h
 │   ├── lexer.h
 │   ├── lizard.h
 │   ├── parser.h
@@ -88,6 +89,7 @@ Lizard/
 │   └── utils.h
 └── src/
     ├── error.c
+    ├── io.c
     ├── lexer.c
     ├── main.c
     ├── lexer.c

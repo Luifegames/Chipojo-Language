@@ -1,4 +1,5 @@
 #include "lizard.h"
+#include "io.h"
 #include "lexer.h"
 #include "parser.h"
 #include "utils.h"
@@ -9,6 +10,7 @@ extern int indx;
 
 int main(int argc, char **argv)
 {
+    indx = 0;
     if (argc == 2 && strcmp(argv[1], "-v") == 0)
     {
         print_version();
@@ -20,30 +22,8 @@ int main(int argc, char **argv)
         printf("Use: %s archive.lzd\n", argv[0]);
         return 1;
     }
-
-    // Check extension .lzd
-    char *ext = strrchr(argv[1], '.');
-    if (!ext || strcmp(ext, ".lzd") != 0)
-    {
-        printf("Error: not found file .lzd\n");
-        return 1;
-    }
-
-    FILE *f = fopen(argv[1], "rb");
-    if (!f)
-    {
-        printf("Can't open %s\n", argv[1]);
-        return 1;
-    }
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    input = malloc(size + 1);
-    fread(input, 1, size, f);
-    input[size] = '\0';
-    fclose(f);
-
-    indx = 0;
+    
+    get_file_contents(argv[1]);
     jumpBOM();
     forward();
     program();
