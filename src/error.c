@@ -64,6 +64,14 @@ const char *token_to_string(TypeToken type)
         return "'<='";
     case TOKEN_GE:
         return "'>='";
+    case TOKEN_HAS:
+        return "has";          
+    case TOKEN_DOT:
+        return ".";
+    case TOKEN_COMMA:
+        return ",";
+    case TOKEN_COLON:
+        return ":";
     case TOKEN_ERROR:
         return "error";
     case TOKEN_RETURN:

@@ -12,7 +12,7 @@
             forward();
         else
         {
-            syntax_error("",current_token);   
+            syntax_error(message,current_token);   
             exit(1);
         }
     }
@@ -23,6 +23,41 @@
     Value comparison_op(Value left, TypeToken op, Value right,int line);
     void concat_element(char *buffer, size_t buffsize);
     void print_concat();
+
+
+    Value define_dict(){
+        consume(TOKEN_LEFTBRACE, "Expected '{'");
+        int braces = 1;
+        Dict *dict = malloc(sizeof(Dict));
+        dict->capacity = 4;
+        dict->count = 0;
+        dict->entries = malloc(dict->capacity * sizeof(DictEntry));
+        while (braces != 0)
+        {
+            char key[64];
+            strcpy(key, current_token.name);
+            consume(TOKEN_STRING, "Invalid key, Expected String");
+            consume(TOKEN_COLON, "Expect ':'");
+            Value val = expression();
+            Value *val_copy = malloc(sizeof(Value));
+            *val_copy = val;
+
+            dict_set(dict, key, val_copy);
+            if (current_token.type == TOKEN_LEFTBRACE)
+                braces++;
+            if (current_token.type == TOKEN_RIGHTBRACE)
+                braces--;
+            if (current_token.type == TOKEN_COMMA) consume(TOKEN_COMMA, "Expect ','");
+         
+        }
+
+        Value v;
+        v.type = VAR_DICT;
+        v.value.dict = dict;
+        forward();
+        return v;    
+    }
+
 
     int is_truthy(Value v) {
         if (v.type == VAR_NUMBER) return v.value.num != 0;
@@ -539,13 +574,20 @@
                 forward();
                 return v;
             }
+            //Dictionary
+            else if (current_token.type == TOKEN_LEFTBRACE){
+                v = define_dict();
+                v.type = VAR_DICT;
+                return v;
+            }
+            //id
             else if (current_token.type == TOKEN_ID)
             {
                 char name[64];
                 strcpy(name, current_token.name);
                 forward();
 
-                if (current_token.type == TOKEN_PARENTLEFT)
+                if (current_token.type == TOKEN_PARENTLEFT) //is a function
                 {
                     forward(); // Consume TOKEN (
                     Value v[100];
@@ -669,6 +711,47 @@
                 return;
             }
 
+           
+
+            if (peek_next_token_type() == TOKEN_DOT) // is a dictionary
+            {
+                Value v = getVarValue(current_token.name);
+                if (v.type != VAR_DICT){
+                    syntax_error("Is not dictionary",current_token);
+                
+                }
+                Dict *dict = v.value.dict;
+                consume(TOKEN_ID,"Expected Identifier");
+
+                // consume(TOKEN_DOT,"Expected '.'");
+                // char key[64];
+                // strcpy(key, current_token.name);
+                // consume(TOKEN_ID, "Expected identifier");
+                char key[64];
+                
+                while (current_token.type == TOKEN_DOT)
+                {
+                    consume(TOKEN_DOT, "Expected '.'");
+                    strcpy(key, current_token.name);
+                    Value val_dic = dict_get(dict, key);
+
+                    consume(TOKEN_ID, "Expected identifier");
+                    if (current_token.type == TOKEN_DOT)
+                    {   
+                        dict = val_dic.value.dict;
+                    }
+                }
+
+                consume(TOKEN_ASIGN, "Expected '=");
+                Value val = expression();
+                Value *val_copy = malloc(sizeof(val));
+                *val_copy = val;
+                dict_set(dict, key, val_copy);
+                free(val_copy);
+
+                return;
+            }
+
             forward(); //Consume ID
             
             if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
@@ -696,6 +779,8 @@
         }
 
         consume(TOKEN_ASIGN, "not found '='");
+
+
         Value val = expression();
         setVariable(name,val);
         }
@@ -703,7 +788,7 @@
 
     void concat_element(char *buffer, size_t buffsize)
     {
-        char temp[64];
+        char temp[256];
 
         if (current_token.type == TOKEN_STRING)
         {
@@ -713,9 +798,51 @@
         else if (current_token.type == TOKEN_ID)
         {
             char var_name[64];
+            
             strcpy(var_name, current_token.name);
             TypeToken next = peek_next_token_type();
 
+            if (next == TOKEN_DOT)
+            { // is a dictionary value
+
+                Value val_dic;
+                Value v = getVarValue(current_token.name);
+                Dict *dict = v.value.dict;
+                
+                consume(TOKEN_ID, "Expected identifier");
+                
+                while ( current_token.type == TOKEN_DOT)
+                {
+                   
+                    consume(TOKEN_DOT, "Expected '.'");
+                    char key[64];
+                    strcpy(key, current_token.name);
+                    val_dic = dict_get(dict,key);
+                    if (val_dic.type == VAR_DICT){
+                        dict = val_dic.value.dict;
+                    }
+                    forward();
+                }
+
+                switch (val_dic.type)
+                {
+                case VAR_STRING:
+                    snprintf(temp, sizeof(temp), "%s", val_dic.value.str);
+                    break;
+                case VAR_NULL:
+                    snprintf(temp, sizeof(temp), "%s", "null");
+                    break;
+                case VAR_DICT:
+                    value_print(val_dic.value.dict, buffer, buffsize);
+                    snprintf(temp, sizeof(temp), " ");
+                    break;
+                default:
+                    snprintf(temp, sizeof(temp), "%g", val_dic.value.num);
+                    break;
+                }
+                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+            }
+            else
             if (next == TOKEN_PARENTLEFT)
             { // is a function
                 Value val = factor();
@@ -734,21 +861,26 @@
                 int found = 0;
                 Scope sc = scope_stack[scope_depth];
 
-                for (int i = 0; i < sc.num_vars; i++)
+                for (int i = 0; i < sc.count; i++)
                 {
-                    if (strcmp(sc.vars[i].name, var_name) == 0)
+                    if (strcmp(sc.vars[i]->name, var_name) == 0)
                     {
-                        if (sc.vars[i].type == VAR_STRING)
+                        if (sc.vars[i]->type == VAR_STRING)
                         {
-                            strncat(buffer, sc.vars[i].value.str, buffsize - strlen(buffer) - 1);
+                            strncat(buffer, sc.vars[i]->value.str, buffsize - strlen(buffer) - 1);
                         }
-                        else if (sc.vars[i].type == VAR_NULL)
+                        else if (sc.vars[i]->type == VAR_DICT)
+                        {
+                            Dict *dict = sc.vars[i]->value.dict;
+                            value_print(dict,buffer,buffsize);
+                        }
+                        else if (sc.vars[i]->type == VAR_NULL)
                         {
                             strncat(buffer, "null", buffsize - strlen(buffer) - 1);
                         }
                         else
                         {
-                            snprintf(temp, sizeof(temp), "%g", sc.vars[i].value.num);
+                            snprintf(temp, sizeof(temp), "%g", sc.vars[i]->value.num);
                             strncat(buffer, temp, buffsize - strlen(buffer) - 1);
                         }
                         found = 1;
@@ -814,6 +946,44 @@
         forward();
         popScope();
         return ret_val;
+    }
+
+    void value_print(Dict *dict, char *buffer, size_t buffsize){
+        char temp[256];
+        snprintf(temp, sizeof(temp), "%s", "{ ");
+        strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+
+        for (int e = 0; e < dict->count; e++)
+        {
+            snprintf(temp, sizeof(temp), "%s :", dict->entries[e].key);
+            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+            switch (dict->entries[e].value->type)
+            {
+            case VAR_STRING:
+                snprintf(temp, sizeof(temp), "%s", dict->entries[e].value->value.str);
+                break;
+            case VAR_NULL:
+                snprintf(temp, sizeof(temp), "%s", "null");
+                break;
+            case VAR_DICT:
+                value_print(dict->entries[e].value->value.dict,buffer,buffsize);
+                snprintf(temp, sizeof(temp), " ");
+                break;
+
+            default:
+                snprintf(temp, sizeof(temp), "%g", dict->entries[e].value->value.num);
+                break;
+            }
+
+            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+            if (e < dict->count - 1)
+            {
+                snprintf(temp, sizeof(temp), " ,");
+                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+            }
+        }
+        snprintf(temp, sizeof(temp), " }");
+        strncat(buffer, temp, buffsize - strlen(buffer) - 1);
     }
 
     void print_stmt()

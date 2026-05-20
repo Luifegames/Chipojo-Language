@@ -2,7 +2,7 @@
 <div align="center">
 <img src="https://github.com/Luifegames/Lizard-Language/blob/74f78dcaae82aeed552b0b00ab53031f4293c24a/icon.svg" alt="Logo Lizard Language" width="250" />
 </div>
-**Lizard** is a small, C‑based interpreted language designed for learning and experimentation. It supports variables, arithmetic, comparisons, conditionals, and string concatenation in `print` statements.
+**Lizard** is a small, C‑based interpreted language designed for learning and experimentation. It supports variables, arithmetic, comparisons, conditionals,dictionaries and functions.
 
 ## Features
 
@@ -15,6 +15,7 @@
 - **Print** – `print(...)` with `+` concatenation (strings, ints, variables)  
 - **Conditionals** – `if`, `elif`, `else` with `{ }` blocks  
 - **Loops** – `while`  
+**Dictionaries** – `{key:value}
 - **Functions** – user‑defined with func, parameters, return, and recursion
 - **File extension** – `.lzd`  
 - **Version** – `Lizard -v` shows ASCII art
@@ -97,8 +98,6 @@ Lizard/
     ├── variables.c
     └── utils.c
 ```
-## License
-MIT – free to use and modify.
 
 
 ## Installation Lizard Language for VS Code
@@ -124,7 +123,7 @@ Once installed, the extension automatically activates when you open a `.lzd` fil
 - Keywords (`if`, `else`, `while`, `print`, `and`, `or`, `not`) will have syntax highlighting.
 - Strings, numbers, comments, and operators are also highlighted.
 
-### Example
+## Example
 
 Open a file named `hello.lzd`:
 
@@ -141,7 +140,44 @@ if (size >= 10) {
 print("2 + 2 = " + (2 + 2))
 print("5 > 3 is " + (5 > 3))
 ```
-### Functions
+
+## Dictionaries
+Lizard supports dictionaries (hash maps) that store key‑value pairs. Keys must be strings, values can be any type (numbers, strings, nested dictionaries, etc.).
+
+### Creating a dictionary
+
+```lizard
+empty = {}
+person = {"name": "Alice", "age": 30, "active": true}
+```
+
+### Accessing and modifying values
+Use dot notation to read or assign values:
+
+```lizard
+print(person.name)   // "Alice"
+person.age = 31      // update existing key
+person.city = "Paris" // add new key-value pair
+```
+
+```lizard
+if person.has("age") {
+    print("Age: " + person.age)
+}
+```
+### Printing a dictionary
+
+print(dict) displays the dictionary in a compact format:
+
+```lizard
+print(person)   // {name:Alice,age:31,active:true,city:Paris}
+```
+
+### Notes
+Keys are strings; using a non‑string key will cause an error.
+Accessing a non‑existent key returns null.
+
+## Functions
 
 Lizard allows you to define reusable functions with parameters and return values. Functions are declared using the keyword func, followed by the name, parameters in parentheses, and the body enclosed in braces { }. A function can return a value using return.
 
@@ -173,3 +209,6 @@ while i < 10 {
 }
 ```
 This program prints the first 10 Fibonacci numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
+
+## License
+MIT – free to use and modify.

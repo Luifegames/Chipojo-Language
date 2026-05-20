@@ -5,17 +5,45 @@
 #include "error.h"
 #define MAX_SCOPE 1000
 
+typedef struct Value Value; // Declaración forward
+
+
 // Variables
 typedef enum
 {
     VAR_NUMBER,
     VAR_STRING,
     VAR_FUNCTION,
+    VAR_DICT,
     VAR_NULL
 } VarType;
 
 
+//Dictionary
+typedef struct 
+{
+    
+    char* key;
+    Value* value;
+} DictEntry;
+
 typedef struct
+{
+    DictEntry *entries;   
+    int count;
+    int capacity;
+} Dict;
+
+//Scope
+typedef struct
+{
+    Value *vars[MAX_SCOPE];
+    int count;
+
+} Scope;
+
+// Values
+typedef struct Value
 {
     char name[64];
     VarType type;
@@ -23,25 +51,22 @@ typedef struct
     {
         double num;
         char str[256];
+        Dict *dict;
     } value;
-    
-    struct 
+
+    struct
     {
-        int start ;
-        char ** param;
+        int start;
+        char **param;
         int param_count;
     } func;
 
 } Value;
 
-typedef struct
-{
-    Value vars[MAX_SCOPE];
-    int num_vars;
-
-} Scope;
-
 void assignNumberVar(char *name, double val);
+void dict_set(Dict *dict, char *key, Value *val);
+Value dict_get(Dict *d, char *key);
+void dict_new(char *name, Dict *dict);
 void assignStringVar(char *name, char *val);
 void function_definition(char *name, int start,char** params,int param_count);
 void assignNullVar(char *name);

@@ -103,6 +103,8 @@ Token nextToken()
             t.type = TOKEN_OR;
         else if (strcmp(t.name, "not") == 0)
             t.type = TOKEN_NOT;
+        else if (strcmp(t.name, "has") == 0)
+            t.type = TOKEN_HAS;
         else
             t.type = TOKEN_ID;
         return t;
@@ -302,6 +304,15 @@ Token nextToken()
         break;
     case '}':
         t.type = TOKEN_RIGHTBRACE;
+        break;
+    case '.':
+        t.type = TOKEN_DOT;
+        break;
+    case ':':
+        t.type = TOKEN_COLON;
+        break;
+    case ',':
+        t.type = TOKEN_COMMA;
         break;
     default:
         nextChar();
