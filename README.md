@@ -15,7 +15,7 @@
 - **Print** – `print(...)` with `+` concatenation (strings, ints, variables)  
 - **Conditionals** – `if`, `elif`, `else` with `{ }` blocks  
 - **Loops** – `while`  
-**Dictionaries** – `{key:value}
+- **Dictionaries** – `{key:value}
 - **Functions** – user‑defined with func, parameters, return, and recursion
 - **File extension** – `.lzd`  
 - **Version** – `Lizard -v` shows ASCII art
