@@ -40,7 +40,7 @@ Value native_abs(Value *args, int arg_count, int line)
 }
 
 static NativeFunctions natives[] = {
-    {"print", native_print},
+    {"show", native_print},
     {"abs", native_abs},
     {NULL, NULL}};
 
