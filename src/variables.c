@@ -188,12 +188,20 @@ Value getVarValue(char *name)
                 {
                     v.value.dict = sc->vars[i]->value.dict;
                 }
+                else if (v.type == VAR_NULL)
+                {
+                    strcpy(v.name, "null");
+                    v.type = VAR_NULL;
+                }
                 else if (v.type == VAR_NATIVE)
                 {
                     v.value.native_func = sc->vars[i]->value.native_func;
                 }
                 else{
-                    runtime_error("Can't get this variable");
+                    char message[64];
+                    printf("%s\n",v.name);
+                    sprintf(message, "Can't get this variable, var type %d", v.type);
+                    runtime_error(message);
                 }
                 return v;
             }

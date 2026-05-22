@@ -2,6 +2,7 @@
     #include "lexer.h"
     #include "variables.h"
     #include "native.h"
+    #include "methods.h"
     #include "error.h"
 
     Token current_token;
@@ -585,33 +586,89 @@
 
                 if (current_token.type == TOKEN_DOT)
                 {
-                    Value dict_val = getVarValue(name);
-                    if (dict_val.type != VAR_DICT)
+                    Value object = getVarValue(name);
+
+                    consume(TOKEN_DOT, "Expected '.'");
+
+                    char member[64];
+                    strcpy(member, current_token.name);
+                    consume(TOKEN_ID, "Expected identifier");
+
+                    if (current_token.type == TOKEN_PARENTLEFT)
+                    {
+                        consume(TOKEN_PARENTLEFT, "Expected '('");
+
+                        Value args[100];
+
+                        int arg_count = 0;
+
+                        while (current_token.type != TOKEN_PARENTRIGHT)
+                        {
+                            args[arg_count] = expression();
+
+                            arg_count++;
+
+                            if (current_token.type == TOKEN_COMMA)
+                            {
+                                consume(
+                                    TOKEN_COMMA,
+                                    "Expected ','");
+                            }
+                        }
+
+                        consume(
+                            TOKEN_PARENTRIGHT,
+                            "Expected ')'");
+
+                        return call_method(object,member,args,arg_count,current_token.line);
+                    }
+
+                    if (object.type != VAR_DICT)
                     {
                         syntax_error("Is not a dictionary",current_token);
                     }
-                    forward(); //Consume dot
-                    char key[64];
-                    Token key_token = current_token;
-                    Dict *dict = dict_val.value.dict;
-                    consume(TOKEN_ID, "Expected Identifier");
-                    strcpy(key, key_token.name);
+
+                    Dict *dict = object.value.dict;
+                    Value val_dic = dict_get(dict, member);
 
                     while (current_token.type == TOKEN_DOT)
                     {
+                        dict = val_dic.value.dict;
                         consume(TOKEN_DOT, "Expected '.'");
-                        strcpy(key, current_token.name);
-                        Value val_dic = dict_get(dict, key);
-
+                        strcpy(member, current_token.name);
                         consume(TOKEN_ID, "Expected identifier");
 
-                        if (current_token.type == TOKEN_DOT)
+                       
+                        if (current_token.type == TOKEN_PARENTLEFT)
                         {
-                            dict = val_dic.value.dict;
+                            consume(TOKEN_PARENTLEFT, "Expected '('");
+
+                            Value args[100];
+
+                            int arg_count = 0;
+
+                            while (current_token.type != TOKEN_PARENTRIGHT)
+                            {
+                                args[arg_count] = expression();
+
+                                arg_count++;
+
+                                if (current_token.type == TOKEN_COMMA)
+                                {
+                                    consume(
+                                        TOKEN_COMMA,
+                                        "Expected ','");
+                                }
+                            }
+
+                            consume(TOKEN_PARENTRIGHT,"Expected ')'");
+
+                            return call_method(val_dic, member, args, arg_count, current_token.line);
                         }
+                        val_dic = dict_get(dict, member);
                     }
 
-                    v = dict_get(dict, key);
+                    v = dict_get(dict, member);
                     return v;
                 }
 
