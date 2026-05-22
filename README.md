@@ -85,6 +85,8 @@ Lizard/
 │   ├── io.h
 │   ├── lexer.h
 │   ├── lizard.h
+│   ├── methods.h
+│   ├── natives.h
 │   ├── parser.h
 │   ├── variables.h
 │   └── utils.h
@@ -93,6 +95,8 @@ Lizard/
     ├── io.c
     ├── lexer.c
     ├── main.c
+    ├── methods.h
+    ├── natives.h
     ├── lexer.c
     ├── parser.c
     ├── variables.c
