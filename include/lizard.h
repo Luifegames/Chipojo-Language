@@ -43,7 +43,6 @@ typedef enum
     TOKEN_FUNC,
     TOKEN_RETURN,
     TOKEN_COMMA,
-    TOKEN_HAS,          // has
     TOKEN_DOT,          // .
     TOKEN_COLON,        // :
     TOKEN_NULL,         // null

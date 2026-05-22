@@ -63,9 +63,7 @@ const char *token_to_string(TokenType type)
     case TOKEN_LE:
         return "'<='";
     case TOKEN_GE:
-        return "'>='";
-    case TOKEN_HAS:
-        return "has";          
+        return "'>='";       
     case TOKEN_DOT:
         return ".";
     case TOKEN_COMMA:

@@ -31,12 +31,25 @@ Value dict_size(Value *args, int arg_count, int line)
     return result;
 }
 
+Value dict_has(Value *args, int arg_count, int line)
+{
+    Value self = args[0];
+    char* key = args[1].value.str;
+    Value result = {0};
+    result.type = VAR_NUMBER;
+    result.value.num = 0;
+    Value dict_val = dict_get(self.value.dict,key);
+    if (dict_val.type != VAR_NULL) result.value.num = 1;
+    return result;
+}
+
 MethodEntry string_methods[] = {
     {"upper", string_upper},
     {NULL, NULL}};
 
 MethodEntry dict_methods[] = {
     {"size", dict_size},
+    {"has", dict_has},
     {NULL, NULL}};
 
 Value call_method(Value object,char *method,Value *args,int arg_count,int line)
