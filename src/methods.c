@@ -79,7 +79,13 @@ Value dict_has(Value *args, int arg_count, int line)
     return result;
 }
 
-
+Value dict_getter(Value *args, int arg_count, int line)
+{
+    Value self = args[0];
+    char *key = args[1].value.str;
+    Value result = dict_get(self.value.dict, key);
+    return result;
+}
 
 MethodEntry string_methods[] = {
     {"upper", string_upper},
@@ -91,6 +97,7 @@ MethodEntry string_methods[] = {
 MethodEntry dict_methods[] = {
     {"size", dict_size},
     {"has", dict_has},
+    {"get",dict_getter},
     {NULL, NULL}};
 
 Value call_method(Value object,char *method,Value *args,int arg_count,int line)
