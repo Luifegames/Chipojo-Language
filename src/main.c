@@ -1,6 +1,7 @@
 #include "lizard.h"
 #include "io.h"
 #include "lexer.h"
+#include "native.h"
 #include "parser.h"
 #include "utils.h"
 
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
     }
     
     get_file_contents(argv[1]);
+    register_natives();
     jumpBOM();
     forward();
     program();

@@ -3,10 +3,11 @@
 
 #include "lizard.h"
 #include "error.h"
+
 #define MAX_SCOPE 1000
 
 typedef struct Value Value; // Declaración forward
-
+typedef Value (*NativeFunction)(Value *args, int arg_count, int line);
 
 // Variables
 typedef enum
@@ -15,6 +16,7 @@ typedef enum
     VAR_STRING,
     VAR_FUNCTION,
     VAR_DICT,
+    VAR_NATIVE,
     VAR_NULL
 } VarType;
 
@@ -52,7 +54,6 @@ typedef struct Value
         double num;
         char str[256];
         Dict *dict;
-    } value;
 
     struct
     {
@@ -60,7 +61,8 @@ typedef struct Value
         char **param;
         int param_count;
     } func;
-
+    NativeFunction native_func;
+    } value;
 } Value;
 
 void assignNumberVar(char *name, double val);

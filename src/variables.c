@@ -21,8 +21,8 @@ void dict_new(char *name, Dict *dict){
     strcpy(new_var->name, name);
     new_var->type = VAR_DICT;
     new_var->value.dict = dict;
-        new_var->func.param = NULL;
-    new_var->func.param_count = 0;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
 
     sc->vars[sc->count] = new_var;
     sc->count++;
@@ -32,9 +32,11 @@ void dict_set(Dict *dict, char *key, Value *val){
     
     for (int i = 0; i < dict->count; i++)
     {
-        if (strcmp(dict->entries[i].key, key) == 0)
+        if (strcmp(dict ->entries[i].key, key) == 0)
         {
-            dict->entries[i].value = val;
+
+            *(dict->entries[i].value) = *val;
+
             return;
         }
     }
@@ -56,7 +58,8 @@ Value dict_get(Dict *d, char *key)
     {
         if (strcmp(d->entries[i].key, key) == 0)
         {
-            return *d->entries[i].value;
+            Value v = *d->entries[i].value;
+            return v;
         }
     }
     Value null_val;
@@ -81,8 +84,8 @@ void assignNumberVar(char *name, double num)
     new_var->type = VAR_NUMBER;
     new_var->value.num = num;
 
-    new_var->func.param = NULL;
-    new_var->func.param_count = 0;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
 
     sc->vars[sc->count] = new_var;
     sc->count++;
@@ -106,8 +109,8 @@ void assignStringVar(char *name, char *str_value)
     new_var->type = VAR_STRING;
     strcpy(new_var->value.str, str_value);
 
-    new_var->func.param = NULL;
-    new_var->func.param_count = 0;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
 
     sc->vars[sc->count] = new_var;
     sc->count++;
@@ -129,15 +132,16 @@ void function_definition(char *name, int start,char **params, int param_count)
     Value *new_var = malloc(sizeof(Value));
     strcpy(new_var->name, name);
     new_var->type = VAR_FUNCTION;
-    new_var->func.start = start;
+    new_var->value.func.start = start;
 
-    new_var->func.param = malloc(param_count * sizeof(char *));
+    new_var->value.func.param = malloc(param_count * sizeof(char *));
     for (int i = 0; i < param_count; i++)
-        new_var->func.param[i] = strdup(params[i]);
+        new_var->value.func.param[i] = strdup(params[i]);
 
-    new_var->func.param_count = param_count;
+    new_var->value.func.param_count = param_count;
     sc->vars[sc->count] = new_var;
     sc->count++;
+
 }
 
 void assignNullVar(char *name)
@@ -160,7 +164,7 @@ void assignNullVar(char *name)
 
 Value getVarValue(char *name)
 {
-    Value v;
+    Value v = {0};
     for (int d = scope_depth; d >= 0; d--)
     {
         Scope *sc = &scope_stack[d];
@@ -172,16 +176,24 @@ Value getVarValue(char *name)
                 v.type = sc->vars[i]->type;
                 if (v.type == VAR_NUMBER)
                     v.value.num = sc->vars[i]->value.num;
-                if (v.type == VAR_STRING)
+                else if (v.type == VAR_STRING)
                     strcpy(v.value.str, sc->vars[i]->value.str);
-                if (v.type == VAR_FUNCTION){
-                    v.func.start = sc->vars[i]->func.start;
-                    v.func.param = sc->vars[i]->func.param;
-                    v.func.param_count = sc->vars[i]->func.param_count;
+                else if (v.type == VAR_FUNCTION)
+                {
+                    v.value.func.start = sc->vars[i]->value.func.start;
+                    v.value.func.param = sc->vars[i]->value.func.param;
+                    v.value.func.param_count = sc->vars[i]->value.func.param_count;
                 }
-                if (v.type == VAR_DICT)
+                else if (v.type == VAR_DICT)
                 {
                     v.value.dict = sc->vars[i]->value.dict;
+                }
+                else if (v.type == VAR_NATIVE)
+                {
+                    v.value.native_func = sc->vars[i]->value.native_func;
+                }
+                else{
+                    runtime_error("Can't get this variable");
                 }
                 return v;
             }
@@ -191,7 +203,7 @@ Value getVarValue(char *name)
 }
 
 void setVariable(char *name, Value value){
-
+    
     if (value.type == VAR_STRING)
     {
         assignStringVar(name, value.value.str);
@@ -208,12 +220,27 @@ void setVariable(char *name, Value value){
     {
         dict_new(name, value.value.dict);
     }
+    else if (value.type == VAR_NATIVE)
+    {
+        Scope *sc = &scope_stack[scope_depth];
+        Value *new_var = malloc(sizeof(Value));
+
+        strcpy(new_var->name, name);
+        new_var->type = VAR_NATIVE;
+        new_var->value = value.value;
+        sc->vars[sc->count] = new_var;
+        sc->count++;
+    }
     else{
-        syntax_error("Unexpected value",current_token);
+        undefined_variable_error(name, current_token.line);
     }
 }
 
 void pushScope(){
+    if (scope_depth + 1 >= MAX_SCOPE)
+    {
+        runtime_error("Maximum scope depth exceeded");
+    }
     scope_depth++;
 
     scope_stack[scope_depth].count = 0;
@@ -228,9 +255,9 @@ void popScope()
         {
             if (sc->vars[i]->type == VAR_FUNCTION)
             {
-                for (int j = 0; j < sc->vars[i]->func.param_count; j++)
-                    free(sc->vars[i]->func.param[j]);
-                free(sc->vars[i]->func.param);
+                for (int j = 0; j < sc->vars[i]->value.func.param_count; j++)
+                    free(sc->vars[i]->value.func.param[j]);
+                free(sc->vars[i]->value.func.param);
             }
             if (sc->vars[i]->type == VAR_DICT)
             {
@@ -239,7 +266,7 @@ void popScope()
                     free(sc->vars[i]->value.dict->entries[j].value);
                 }
                 free(sc->vars[i]->value.dict->entries);
-
+                free(sc->vars[i]->value.dict);
             }
             free(sc->vars[i]); 
         }

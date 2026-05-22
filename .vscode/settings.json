@@ -11,6 +11,8 @@
         "compare": "cpp",
         "concepts": "cpp",
         "limits": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "native.h": "c",
+        "parser.h": "c"
     }
 }

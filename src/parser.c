@@ -1,12 +1,13 @@
     #include "parser.h"
     #include "lexer.h"
     #include "variables.h"
+    #include "native.h"
     #include "error.h"
 
     Token current_token;
 
     void forward() { current_token = nextToken(); }
-    void consume(TypeToken type, char *message)
+    void consume(TokenType type, char *message)
     {
         if (current_token.type == type)
             forward();
@@ -20,7 +21,7 @@
     // Prototypes
     Value logical_or(void);
     Value logical_and(void);
-    Value comparison_op(Value left, TypeToken op, Value right,int line);
+    Value comparison_op(Value left, TokenType op, Value right,int line);
     void concat_element(char *buffer, size_t buffsize);
     void print_concat();
 
@@ -39,10 +40,7 @@
             consume(TOKEN_STRING, "Invalid key, Expected String");
             consume(TOKEN_COLON, "Expect ':'");
             Value val = expression();
-            Value *val_copy = malloc(sizeof(Value));
-            *val_copy = val;
-
-            dict_set(dict, key, val_copy);
+            dict_set(dict, key, &val);
             if (current_token.type == TOKEN_LEFTBRACE)
                 braces++;
             if (current_token.type == TOKEN_RIGHTBRACE)
@@ -51,7 +49,7 @@
          
         }
 
-        Value v;
+        Value v = {0};
         v.type = VAR_DICT;
         v.value.dict = dict;
         forward();
@@ -75,10 +73,10 @@
             forward();
             Value right = logical_and();
             if (is_truthy(left)) {
-                Value v; v.type = VAR_NUMBER; v.value.num = 1; return v;
+                Value v = {0}; v.type = VAR_NUMBER; v.value.num = 1; return v;
             } else {
                 int truthy = is_truthy(right);
-                Value v; v.type = VAR_NUMBER; v.value.num = truthy ? 1 : 0;
+                Value v = {0}; v.type = VAR_NUMBER; v.value.num = truthy ? 1 : 0;
                 return v;
             }
         }
@@ -92,10 +90,10 @@
             Value right = comparison_expr();
             if (!is_truthy(left)) {
                 
-                Value v; v.type = VAR_NUMBER; v.value.num = 0; return v;
+                Value v = {0}; v.type = VAR_NUMBER; v.value.num = 0; return v;
             } else {
                 int truthy = is_truthy(right);
-                Value v; v.type = VAR_NUMBER; v.value.num = truthy ? 1 : 0;
+                Value v = {0}; v.type = VAR_NUMBER; v.value.num = truthy ? 1 : 0;
                 return v;
             }
         }
@@ -261,9 +259,7 @@
         int braces = 1;
         while (braces != 0 && current_token.type != TOKEN_EOF)
         {
-            if (current_token.type == TOKEN_PRINT)
-                print_stmt();
-            else if (current_token.type == TOKEN_ID)
+            if (current_token.type == TOKEN_ID)
                 assignation();
             else if (current_token.type == TOKEN_IF)
             {
@@ -276,7 +272,7 @@
             else if (current_token.type == TOKEN_RETURN){
                 forward();
                 ret_val = expression();
-                forward(); // consumir la '}' final
+                forward(); // consume  '}' 
                 return ret_val;
             }
             else if (current_token.type == TOKEN_LEFTBRACE)
@@ -303,7 +299,7 @@
             current_token.type == TOKEN_LT || current_token.type == TOKEN_GT ||
             current_token.type == TOKEN_LE || current_token.type == TOKEN_GE)
         {
-            TypeToken op = current_token.type;
+            TokenType op = current_token.type;
             int current_line = current_token.line;
             forward();
             Value right = arith_expr();
@@ -322,7 +318,7 @@
 
 
             Token token = current_token;
-            TypeToken op = current_token.type;
+            TokenType op = current_token.type;
             forward();
             Value right = term();
 
@@ -366,7 +362,7 @@
         return left;
     }
 
-    Value comparison_op(Value left, TypeToken op, Value right,int line)
+    Value comparison_op(Value left, TokenType op, Value right,int line)
     {
         int result = 0;
         if (left.type == VAR_NUMBER && right.type == VAR_NUMBER)
@@ -473,7 +469,7 @@
             }
             }
         }
-        Value v;
+        Value v = {0};
         v.type = VAR_NUMBER;
         v.value.num = result;
         return v;
@@ -485,7 +481,7 @@
         while (current_token.type == TOKEN_MUL || current_token.type == TOKEN_DIV)
         {
             Token token = current_token;
-            TypeToken op = current_token.type;
+            TokenType op = current_token.type;
             forward();
             Value right = factor();
 
@@ -516,13 +512,13 @@
 
         Value factor()
         { // Operator Prefix ++ --
-            Value v;
+            Value v = {0};
             v.type = VAR_NUMBER;
 
             if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
             {
                 Token token = current_token;
-                TypeToken op = current_token.type;
+                TokenType op = current_token.type;
                 forward();
                 if (current_token.type != TOKEN_ID)
                 {
@@ -530,7 +526,7 @@
                     exit(1);
                 }
 
-                char name[64];
+                char name[256];
                 strcpy(name, current_token.name);
                 Value old = getVarValue(name);
                 if (old.type != VAR_NUMBER)
@@ -549,7 +545,7 @@
                 forward();
                 Value operand = factor(); 
                 int truthy = is_truthy(operand);
-                Value v;
+                Value v = {0};
                 v.type = VAR_NUMBER;
                 v.value.num = truthy ? 0 : 1;
                 return v;
@@ -587,27 +583,77 @@
                 strcpy(name, current_token.name);
                 forward();
 
+                if (current_token.type == TOKEN_DOT)
+                {
+                    Value dict_val = getVarValue(name);
+                    if (dict_val.type != VAR_DICT)
+                    {
+                        syntax_error("Is not a dictionary",current_token);
+                    }
+                    forward(); //Consume dot
+                    char key[64];
+                    Token key_token = current_token;
+                    Dict *dict = dict_val.value.dict;
+                    consume(TOKEN_ID, "Expected Identifier");
+                    strcpy(key, key_token.name);
+
+                    while (current_token.type == TOKEN_DOT)
+                    {
+                        consume(TOKEN_DOT, "Expected '.'");
+                        strcpy(key, current_token.name);
+                        Value val_dic = dict_get(dict, key);
+
+                        consume(TOKEN_ID, "Expected identifier");
+
+                        if (current_token.type == TOKEN_DOT)
+                        {
+                            dict = val_dic.value.dict;
+                        }
+                    }
+
+                    v = dict_get(dict, key);
+                    return v;
+                }
+
                 if (current_token.type == TOKEN_PARENTLEFT) //is a function
                 {
                     forward(); // Consume TOKEN (
-                    Value v[100];
-                    int count = 0;
+                    Value args[100];
+                    int arg_count = 0;
 
                     while (current_token.type != TOKEN_PARENTRIGHT)
                     {
-                        v[count] = expression();
-                        count++;
-                    
+                        args[arg_count] = expression();
+                        arg_count++;
+                        if (current_token.type == TOKEN_COMMA){
+                            consume(TOKEN_COMMA, "Expeted ','");
+                        }
+
                     }
                     int last_index = indx;
                     consume(TOKEN_PARENTRIGHT, "expected )");
-                    Value v_r = function_call(name, v, count, last_index);
-                    return v_r;
+
+                    Value fn = getVarValue(name);
+                     
+
+                    if (fn.type == VAR_NATIVE)
+                    {
+                        return fn.value.native_func(args, arg_count, current_token.line);
+                    }
+                    else if (fn.type == VAR_FUNCTION)
+                    {
+                        return function_call(fn, args, arg_count, last_index);
+                    }
+                    else
+                    {
+                        syntax_error("This value is not callable", current_token);
+                    }
+
                 }
 
                 if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
                 {
-                    TypeToken op = current_token.type;
+                    TokenType op = current_token.type;
                     forward();
                     Value old = getVarValue(name);
                     double new_val = (op == TOKEN_INC) ? old.value.num + 1 : old.value.num - 1;
@@ -646,7 +692,7 @@
             }
         }
 
-        void assign_compound(char *name, TypeToken op, double val, int op_line)
+        void assign_compound(char *name, TokenType op, double val, int op_line)
         {
             Value v = getVarValue(name);
             double current = v.value.num;
@@ -686,7 +732,7 @@
         if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
         {
             Token token = current_token;
-            TypeToken op = current_token.type;
+            TokenType op = current_token.type;
 
             forward();
             if (current_token.type != TOKEN_ID)
@@ -723,12 +769,7 @@
                 Dict *dict = v.value.dict;
                 consume(TOKEN_ID,"Expected Identifier");
 
-                // consume(TOKEN_DOT,"Expected '.'");
-                // char key[64];
-                // strcpy(key, current_token.name);
-                // consume(TOKEN_ID, "Expected identifier");
                 char key[64];
-                
                 while (current_token.type == TOKEN_DOT)
                 {
                     consume(TOKEN_DOT, "Expected '.'");
@@ -736,19 +777,19 @@
                     Value val_dic = dict_get(dict, key);
 
                     consume(TOKEN_ID, "Expected identifier");
+
                     if (current_token.type == TOKEN_DOT)
                     {   
                         dict = val_dic.value.dict;
                     }
+                    
                 }
 
                 consume(TOKEN_ASIGN, "Expected '=");
                 Value val = expression();
-                Value *val_copy = malloc(sizeof(val));
+                Value *val_copy = malloc(sizeof(Value));
                 *val_copy = val;
                 dict_set(dict, key, val_copy);
-                free(val_copy);
-
                 return;
             }
 
@@ -756,7 +797,7 @@
             
             if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
             {
-                TypeToken op = current_token.type;
+                TokenType op = current_token.type;
                 forward();
                 Value v = getVarValue(name);
                 double old = v.value.num;
@@ -770,7 +811,7 @@
             current_token.type == TOKEN_DIV_ASSIGN ||
             current_token.type == TOKEN_MULT_ASSIGN)
         {
-            TypeToken op = current_token.type;
+            TokenType op = current_token.type;
             double current_line = current_token.line;
             forward();
             Value val = expression();
@@ -786,223 +827,65 @@
         }
     }
 
-    void concat_element(char *buffer, size_t buffsize)
-    {
-        char temp[256];
-
-        if (current_token.type == TOKEN_STRING)
-        {
-            strncat(buffer, current_token.name, buffsize - strlen(buffer) - 1);
-            forward();
-        }
-        else if (current_token.type == TOKEN_ID)
-        {
-            char var_name[64];
-            
-            strcpy(var_name, current_token.name);
-            TypeToken next = peek_next_token_type();
-
-            if (next == TOKEN_DOT)
-            { // is a dictionary value
-
-                Value val_dic;
-                Value v = getVarValue(current_token.name);
-                Dict *dict = v.value.dict;
-                
-                consume(TOKEN_ID, "Expected identifier");
-                
-                while ( current_token.type == TOKEN_DOT)
-                {
-                   
-                    consume(TOKEN_DOT, "Expected '.'");
-                    char key[64];
-                    strcpy(key, current_token.name);
-                    val_dic = dict_get(dict,key);
-                    if (val_dic.type == VAR_DICT){
-                        dict = val_dic.value.dict;
-                    }
-                    forward();
-                }
-
-                switch (val_dic.type)
-                {
-                case VAR_STRING:
-                    snprintf(temp, sizeof(temp), "%s", val_dic.value.str);
-                    break;
-                case VAR_NULL:
-                    snprintf(temp, sizeof(temp), "%s", "null");
-                    break;
-                case VAR_DICT:
-                    value_print(val_dic.value.dict, buffer, buffsize);
-                    snprintf(temp, sizeof(temp), " ");
-                    break;
-                default:
-                    snprintf(temp, sizeof(temp), "%g", val_dic.value.num);
-                    break;
-                }
-                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-            }
-            else
-            if (next == TOKEN_PARENTLEFT)
-            { // is a function
-                Value val = factor();
-                snprintf(temp, sizeof(temp), "%g", val.value.num);
-                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-            }
-            else if (next == TOKEN_INC || next == TOKEN_DEC)
-            {
-                Value val = factor();
-                snprintf(temp, sizeof(temp), "%g", val.value.num);
-                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-            }
-            else
-            {
-                forward();
-                int found = 0;
-                Scope sc = scope_stack[scope_depth];
-
-                for (int i = 0; i < sc.count; i++)
-                {
-                    if (strcmp(sc.vars[i]->name, var_name) == 0)
-                    {
-                        if (sc.vars[i]->type == VAR_STRING)
-                        {
-                            strncat(buffer, sc.vars[i]->value.str, buffsize - strlen(buffer) - 1);
-                        }
-                        else if (sc.vars[i]->type == VAR_DICT)
-                        {
-                            Dict *dict = sc.vars[i]->value.dict;
-                            value_print(dict,buffer,buffsize);
-                        }
-                        else if (sc.vars[i]->type == VAR_NULL)
-                        {
-                            strncat(buffer, "null", buffsize - strlen(buffer) - 1);
-                        }
-                        else
-                        {
-                            snprintf(temp, sizeof(temp), "%g", sc.vars[i]->value.num);
-                            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-                        }
-                        found = 1;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    undefined_variable_error(var_name,current_token.line);
-                    exit(1);
-                }
-            }
-        }
-        else if (current_token.type == TOKEN_NULL){
-            snprintf(temp, sizeof(temp), "null");
-            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-        }
-        else
-        {
-            Value val = factor();
-            snprintf(temp, sizeof(temp), "%g", val.value.num);
-            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-        }
-    }
-
-    void print_concat()
-    {
-        char buffer[4096] = "";
-        concat_element(buffer, sizeof(buffer));
-
-        while (current_token.type == TOKEN_SUM)
-        {
-            forward();
-            concat_element(buffer, sizeof(buffer));
-        }
-
-        fwrite(buffer, 1, strlen(buffer), stdout);
-        printf("\n");
-    }
-
-    Value function_call(char* name,Value args_v[],int count,int last_index)
+    Value function_call(Value func_val, Value *args_v, int count, int last_index)
     {
         pushScope();
-        Value func_val = getVarValue(name);
-        func_val.type = VAR_NULL;
-            if (count < func_val.func.param_count)
+            if (count < func_val.value.func.param_count)
             {
                 syntax_error_line("Few params in function",current_token.line);
             }
-            else if (count > func_val.func.param_count)
+            else if (count > func_val.value.func.param_count)
             {
                 syntax_error_line("Too much params in function", current_token.line);
             }
 
             for (int x = 0; x < count; x++)
             {
-                setVariable(func_val.func.param[x],args_v[x]);
+                setVariable(func_val.value.func.param[x], args_v[x]);
             }
-        indx = func_val.func.start;
-        forward(); //Update position on first token in function
-        Value ret_val = block();
-        indx = last_index;   
-        forward();
-        popScope();
-        return ret_val;
+            indx = func_val.value.func.start;
+            forward(); // Update position on first token in function
+            Value ret_val = block();
+            indx = last_index;
+            forward();
+            popScope();
+            return ret_val;
     }
 
-    void value_print(Dict *dict, char *buffer, size_t buffsize){
-        char temp[256];
-        snprintf(temp, sizeof(temp), "%s", "{ ");
-        strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-
+    void dict_print(Dict *dict){
+        printf("{ ");
         for (int e = 0; e < dict->count; e++)
         {
-            snprintf(temp, sizeof(temp), "%s :", dict->entries[e].key);
-            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+            printf("%s :", dict->entries[e].key);
             switch (dict->entries[e].value->type)
             {
             case VAR_STRING:
-                snprintf(temp, sizeof(temp), "%s", dict->entries[e].value->value.str);
+                printf( "%s", dict->entries[e].value->value.str);
                 break;
             case VAR_NULL:
-                snprintf(temp, sizeof(temp), "%s", "null");
+                printf("%s", "null");
                 break;
             case VAR_DICT:
-                value_print(dict->entries[e].value->value.dict,buffer,buffsize);
-                snprintf(temp, sizeof(temp), " ");
+                dict_print(dict->entries[e].value->value.dict);
                 break;
 
             default:
-                snprintf(temp, sizeof(temp), "%g", dict->entries[e].value->value.num);
+                printf("%g", dict->entries[e].value->value.num);
                 break;
             }
-
-            strncat(buffer, temp, buffsize - strlen(buffer) - 1);
             if (e < dict->count - 1)
             {
-                snprintf(temp, sizeof(temp), " ,");
-                strncat(buffer, temp, buffsize - strlen(buffer) - 1);
+                printf(" ,");
             }
         }
-        snprintf(temp, sizeof(temp), " }");
-        strncat(buffer, temp, buffsize - strlen(buffer) - 1);
-    }
-
-    void print_stmt()
-    {
-        consume(TOKEN_PRINT, "not found 'print'");
-        consume(TOKEN_PARENTLEFT, "not found '('");
-        print_concat();
-        consume(TOKEN_PARENTRIGHT, "no found')'");
+        printf(" }");
     }
 
     void program()
     {
         while (current_token.type != TOKEN_EOF)
         {
-            if (current_token.type == TOKEN_PRINT)
-            {
-                print_stmt();
-            }
-            else if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
+            if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
             {
                 expression();
             }

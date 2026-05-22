@@ -52,11 +52,11 @@ typedef enum
     TOKEN_NOT,          // not
     TOKEN_ERROR,
     TOKEN_EOF
-} TypeToken;
+} TokenType;
 
 typedef struct
 {
-    TypeToken type;
+    TokenType type;
     double value;
     char name[64];
     int line;

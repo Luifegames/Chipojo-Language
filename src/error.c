@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const char *token_to_string(TypeToken type)
+const char *token_to_string(TokenType type)
 {
     switch (type)
     {
@@ -110,9 +110,15 @@ void syntax_error_line(const char *message, int line){
     exit(1);
 }
 
+void runtime_error(const char *message)
+{
+    printf("%s",message);
+    exit(1);
+}
+
 void undefined_variable_error(const char *var_name,int line)
 {
-    printf("Lizard Error in line %d : '%s' Undefined value \n in this scope",line, var_name);
+    printf("Lizard Error in line %d : '%s' Undefined value in this scope",line, var_name);
     exit(1);
 }
 

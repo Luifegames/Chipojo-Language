@@ -25,17 +25,26 @@ void skipLineComment(void){
     }
 }
 
-void skipBlockComment(void)
+void skipBlockComment()
 {
-    while (1)
+    int current_line = g_line;
+    while (currentChar() != '\0')
     {
-        if (currentChar() == '*' && peekChar()=='/'){
+
+        if (currentChar() == '*' && peekChar() == '/')
+        {
             nextChar();
             nextChar();
-            break;
+            return;
         }
+
+        if (currentChar() == '\n')
+            g_line++;
+
         nextChar();
     }
+
+    syntax_error_line("Unterminated block comment", current_line);
 }
 
 void jumpBOM(void)
@@ -46,13 +55,17 @@ void jumpBOM(void)
     }
 }
 
-TypeToken peek_next_token_type(void)
-{
-    int saved_pos = indx;
+TokenType peek_next_token_type(void){
+
+    int saved_index = indx;
+    int saved_line = g_line;
+
     Token t = nextToken();
-    TypeToken type = t.type;
-    indx = saved_pos;
-    return type;
+
+    indx = saved_index;
+    g_line = saved_line;
+
+    return t.type;
 }
 
 Token nextToken()
@@ -77,9 +90,9 @@ Token nextToken()
             nextChar();
         }
         t.name[i] = '\0';
-        if (strcmp(t.name, "print") == 0)
-            t.type = TOKEN_PRINT;
-        else if (strcmp(t.name, "if") == 0)
+        // if (strcmp(t.name, "print") == 0)
+        //     t.type = TOKEN_PRINT;
+        if (strcmp(t.name, "if") == 0)
             t.type = TOKEN_IF;
         else if (strcmp(t.name, "else") == 0)
             t.type = TOKEN_ELSE;
@@ -260,14 +273,12 @@ Token nextToken()
     {
         t.type = TOKEN_LT;
         nextChar();
-        nextChar();
         return t;
     }
 
     if (c == '>')
     {
         t.type = TOKEN_GT;
-        nextChar();
         nextChar();
         return t;
     }
