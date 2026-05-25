@@ -52,28 +52,7 @@ Value string_lower(Value *args, int arg_count, int line)
     return result;
 }
 
-Value string_length(Value *args, int arg_count, int line)
-{
 
-    if (arg_count != 1)
-    {
-        syntax_error_line("No need argument", line);
-    }
-
-    Value self = args[0];
-    Value result = {0};
-
-    result.type = VAR_NUMBER;
-    int count = 0;
-    strcpy(result.value.str, self.value.str);
-
-    for (int i = 0; result.value.str[i]; i++)
-    {
-        count ++;
-    }
-    result.value.num = count;
-    return result;
-}
 
 Value dict_size(Value *args, int arg_count, int line)
 {
@@ -101,7 +80,7 @@ Value dict_has(Value *args, int arg_count, int line)
 
     if (args[1].type != VAR_STRING)
     {
-        syntax_error_line("Has argument must be a String", line);
+        syntax_error_line("Argument in 'has' must be a String", line);
     }
 
     Value self = args[0];
@@ -125,7 +104,7 @@ Value dict_getter(Value *args, int arg_count, int line)
     if (args[1].type != VAR_STRING)
     {
         syntax_error_line("Get argument must be a String", line);
-        }
+    }
 
     Value self = args[0];
     char *key = args[1].value.str;
@@ -156,8 +135,6 @@ Value dict_setter(Value *args, int arg_count, int line)
 MethodEntry string_methods[] = {
     {"upper", string_upper},
     {"lower", string_lower},
-    {"length", string_length},
-    {"size", string_length},
     {NULL, NULL}};
 
 MethodEntry dict_methods[] = {

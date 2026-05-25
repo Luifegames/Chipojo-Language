@@ -23,9 +23,8 @@
     Value logical_or(void);
     Value logical_and(void);
     Value comparison_op(Value left, TokenType op, Value right,int line);
-    void concat_element(char *buffer, size_t buffsize);
-    void print_concat();
-
+    Value parse_postfix(Value base);
+    Value get_property(Value object, char *property, int line);
 
     Value define_dict(){
         consume(TOKEN_LEFTBRACE, "Expected '{'");
@@ -476,6 +475,107 @@
         return v;
     }
 
+    Value parse_postfix(Value base){
+        while (1){
+            if (current_token.type == TOKEN_DOT){
+                consume(TOKEN_DOT, "Expected '.'");
+
+                char member[64];
+
+                strcpy(member,current_token.name);
+
+                consume(TOKEN_ID, "Expected identifier");
+                // Method call
+                if (current_token.type == TOKEN_PARENTLEFT)
+                {
+                    consume(TOKEN_PARENTLEFT, "Expected '('");
+
+                    Value args[100];
+
+                    int arg_count = 0;
+
+                    while (current_token.type != TOKEN_PARENTRIGHT)
+                    {
+                        args[arg_count++] = expression();
+                        if (current_token.type == TOKEN_COMMA)
+                        {
+                            consume(TOKEN_COMMA,"Expected ','");
+                        }
+                    }
+
+                    consume(TOKEN_PARENTRIGHT, "Expected ')'");
+
+                    return call_method(base, member, args, arg_count, current_token.line);
+                }
+                else{
+                    base = get_property(base,member,current_token.line);
+                }
+                continue;
+            }
+
+            if (current_token.type == TOKEN_PARENTLEFT)
+            {
+                consume(TOKEN_PARENTLEFT, "Expected '('");
+
+                Value args[100];
+
+                int arg_count = 0;
+
+                while (current_token.type != TOKEN_PARENTRIGHT)
+                {
+                    args[arg_count++] = expression();
+                    if (current_token.type == TOKEN_COMMA)
+                    {
+                        consume(TOKEN_COMMA,"Expected ','");
+                    }
+                }
+                int last_index = indx;
+                consume(TOKEN_PARENTRIGHT,"Expected ')'");
+
+                if (base.type == VAR_NATIVE)
+                {
+                    return base.value.native_func(args, arg_count, current_token.line);
+                }
+                else if (base.type == VAR_FUNCTION)
+                {
+                    return function_call(base, args, arg_count, last_index);
+                }
+                else
+                {
+                    syntax_error("This value is not callable", current_token);
+                }
+                continue;
+            }
+            break;
+        }
+        return base;
+    }
+
+    Value get_property(Value object, char *property, int line){
+        if (object.type == VAR_DICT){
+            return dict_get(object.value.dict, property);
+        }
+
+        if (object.type == VAR_STRING){
+            if (strcmp(property, "length") == 0){
+                Value v = {0};
+
+                v.type = VAR_NUMBER;
+
+                v.value.num = strlen(object.value.str);
+                return v;
+            }
+
+            char message[64];
+            sprintf(message,"Property '%s' not found",property);
+            syntax_error_line(message,line);
+        }
+
+        Value null_value = {0};
+        null_value.type = VAR_NULL;
+        return null_value;
+    }
+
     Value term()
     {
         Value left = factor();
@@ -510,6 +610,7 @@
         }
         return left;
     }
+
 
         Value factor()
         { // Operator Prefix ++ --
@@ -594,145 +695,11 @@
             {
                 char name[64];
                 strcpy(name, current_token.name);
-                int current_line = current_token.line;
-                forward();
+                consume(TOKEN_ID,"Expected identifier");
+                Value base = getVarValue(name);
 
-                if (current_token.type == TOKEN_DOT)
-                {
-                    Value object = getVarValue(name);
+                return parse_postfix(base);
 
-                    consume(TOKEN_DOT, "Expected '.'");
-
-                    char member[64];
-                    strcpy(member, current_token.name);
-                    consume(TOKEN_ID, "Expected identifier");
-
-                    if (current_token.type == TOKEN_PARENTLEFT)
-                    {
-                        consume(TOKEN_PARENTLEFT, "Expected '('");
-
-                        Value args[100];
-
-                        int arg_count = 0;
-
-                        while (current_token.type != TOKEN_PARENTRIGHT)
-                        {
-                            args[arg_count] = expression();
-
-                            arg_count++;
-
-                            if (current_token.type == TOKEN_COMMA)
-                            {
-                                consume(
-                                    TOKEN_COMMA,
-                                    "Expected ','");
-                            }
-                        }
-
-                        consume(
-                            TOKEN_PARENTRIGHT,
-                            "Expected ')'");
-
-                        return call_method(object, member, args, arg_count, current_line);
-                    }
-
-                    if (object.type != VAR_DICT)
-                    {
-                        syntax_error("Is not a dictionary",current_token);
-                    }
-
-                    Dict *dict = object.value.dict;
-                    Value val_dic = dict_get(dict, member);
-
-                    while (current_token.type == TOKEN_DOT)
-                    {
-                        dict = val_dic.value.dict;
-                        consume(TOKEN_DOT, "Expected '.'");
-                        strcpy(member, current_token.name);
-                        consume(TOKEN_ID, "Expected identifier");
-
-                       
-                        if (current_token.type == TOKEN_PARENTLEFT)
-                        {
-                            consume(TOKEN_PARENTLEFT, "Expected '('");
-
-                            Value args[100];
-
-                            int arg_count = 0;
-
-                            while (current_token.type != TOKEN_PARENTRIGHT)
-                            {
-                                args[arg_count] = expression();
-
-                                arg_count++;
-
-                                if (current_token.type == TOKEN_COMMA)
-                                {
-                                    consume(
-                                        TOKEN_COMMA,
-                                        "Expected ','");
-                                }
-                            }
-
-                            consume(TOKEN_PARENTRIGHT,"Expected ')'");
-
-                            return call_method(val_dic, member, args, arg_count, current_line);
-                        }
-                        val_dic = dict_get(dict, member);
-                    }
-
-                    v = dict_get(dict, member);
-                    return v;
-                }
-
-                if (current_token.type == TOKEN_PARENTLEFT) //is a function
-                {
-                    forward(); // Consume TOKEN (
-                    Value args[100];
-                    int arg_count = 0;
-
-                    while (current_token.type != TOKEN_PARENTRIGHT)
-                    {
-                        args[arg_count] = expression();
-                        arg_count++;
-                        if (current_token.type == TOKEN_COMMA){
-                            consume(TOKEN_COMMA, "Expeted ','");
-                        }
-
-                    }
-                    int last_index = indx;
-                    consume(TOKEN_PARENTRIGHT, "expected )");
-
-                    Value fn = getVarValue(name);
-                     
-
-                    if (fn.type == VAR_NATIVE)
-                    {
-                        return fn.value.native_func(args, arg_count, current_token.line);
-                    }
-                    else if (fn.type == VAR_FUNCTION)
-                    {
-                        return function_call(fn, args, arg_count, last_index);
-                    }
-                    else
-                    {
-                        syntax_error("This value is not callable", current_token);
-                    }
-
-                }
-
-                if (current_token.type == TOKEN_INC || current_token.type == TOKEN_DEC)
-                {
-                    TokenType op = current_token.type;
-                    forward();
-                    Value old = getVarValue(name);
-                    double new_val = (op == TOKEN_INC) ? old.value.num + 1 : old.value.num - 1;
-                    assignNumberVar(name, new_val);
-                    v.value.num = old.value.num;
-                    return v;
-                }
-                v = getVarValue(name);
-                return v;
             }
             else if (current_token.type == TOKEN_PARENTLEFT)
             {
@@ -827,13 +794,10 @@
                 return;
             }
 
-           
-
             if (peek_next_token_type() == TOKEN_DOT) // is a dictionary
             {
                 forward();
-                int current_line = current_token.line;
-                Value object = getVarValue(name);
+                Value base = getVarValue(name);
 
                 consume(TOKEN_DOT, "Expected '.'");
 
@@ -841,53 +805,10 @@
                 strcpy(member, current_token.name);
                 consume(TOKEN_ID, "Expected identifier");
 
-                if (current_token.type == TOKEN_PARENTLEFT)
-                {
-                    consume(TOKEN_PARENTLEFT, "Expected '('");
+                Value object = parse_postfix(base);
 
-                    Value args[100];
-
-                    int arg_count = 0;
-
-                    while (current_token.type != TOKEN_PARENTRIGHT)
-                    {
-                        args[arg_count] = expression();
-
-                        arg_count++;
-
-                        if (current_token.type == TOKEN_COMMA)
-                        {
-                            consume(
-                                TOKEN_COMMA,
-                                "Expected ','");
-                        }
-                    }
-
-                    consume(
-                        TOKEN_PARENTRIGHT,
-                        "Expected ')'");
-
-                    call_method(object, member, args, arg_count, current_line);
-                    return;
-                }
-
-                if (object.type != VAR_DICT){
-                    syntax_error("Is not dictionary",current_token);
-                
-                }
                 Dict *dict = object.value.dict;
-                Value val_dic = dict_get(dict, member);
-
-                while (current_token.type == TOKEN_DOT)
-                {
-                    dict = val_dic.value.dict;
-                    consume(TOKEN_DOT, "Expected '.'");
-                    strcpy(member, current_token.name);
-                    consume(TOKEN_ID, "Expected identifier");
-
-                    val_dic = dict_get(dict, member);
-                }
-
+                
                 consume(TOKEN_ASIGN, "Expected '=");
                 Value val = expression();
                 Value *val_copy = malloc(sizeof(Value));
