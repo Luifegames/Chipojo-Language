@@ -26,6 +26,8 @@
     Value parse_postfix(Value base);
     Value get_property(Value object, char *property, int line);
 
+
+
     Value define_dict(){
         consume(TOKEN_LEFTBRACE, "Expected '{'");
         int braces = 1;
@@ -339,19 +341,19 @@
                 {
                     char tmp[512];
                     snprintf(tmp, sizeof(tmp), "%s%s", left.value.str, right.value.str);
-                    strcpy(left.value.str, tmp);
+                    left.value.str = strdup(tmp);
                 }
                 else if (left.type == VAR_STRING && right.type == VAR_NUMBER && op == TOKEN_SUM)
                 {
                     char tmp[512];
                     snprintf(tmp, sizeof(tmp), "%s%g", left.value.str, right.value.num);
-                    strcpy(left.value.str, tmp);
+                    left.value.str =  strdup( tmp);
                 }
                 else if (left.type == VAR_NUMBER && right.type == VAR_STRING && op == TOKEN_SUM)
                 {
                     char tmp[512];
                     snprintf(tmp, sizeof(tmp), "%g%s", left.value.num, right.value.str);
-                    strcpy(left.value.str, tmp);
+                    left.value.str = strdup(tmp);
                     left.type = VAR_STRING;
                 }
                 else
@@ -711,8 +713,8 @@
             else if (current_token.type == TOKEN_STRING)
             {
 
-                strcpy(v.value.str, current_token.name);
                 v.type = VAR_STRING;
+                v.value.str = strdup(current_token.name);
                 forward();
                 return v;
             }
@@ -811,9 +813,7 @@
                 
                 consume(TOKEN_ASIGN, "Expected '=");
                 Value val = expression();
-                Value *val_copy = malloc(sizeof(Value));
-                *val_copy = val;
-                dict_set(dict, member, val_copy);
+                dict_set(dict, member, &val);
                 return;
             }
 

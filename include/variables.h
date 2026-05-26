@@ -47,12 +47,12 @@ typedef struct
 // Values
 typedef struct Value
 {
-    char name[64];
+    char *name;
     VarType type;
     union
     {
         double num;
-        char str[256];
+        char *str;
         Dict *dict;
 
     struct

@@ -5,6 +5,41 @@
 Scope scope_stack[MAX_SCOPE];
 int scope_depth = 0;
 
+Value clone_value(Value v)
+{
+    Value copy = {0};
+
+    copy.type = v.type;
+
+    switch (v.type)
+    {
+    case VAR_NUMBER:
+        copy.value.num = v.value.num;
+        break;
+
+    case VAR_STRING:
+        copy.value.str = strdup(v.value.str);
+        break;
+
+    case VAR_DICT:
+        copy.value.dict = v.value.dict;
+        break;
+
+    case VAR_FUNCTION:
+        copy.value.func = v.value.func;
+        break;
+
+    case VAR_NATIVE:
+        copy.value.native_func = v.value.native_func;
+        break;
+
+    default:
+        break;
+    }
+
+    return copy;
+}
+
 void dict_new(char *name, Dict *dict){
     Scope *sc = &scope_stack[scope_depth];
 
@@ -18,7 +53,7 @@ void dict_new(char *name, Dict *dict){
         }
     Value *new_var = malloc(sizeof(Value));
 
-    strcpy(new_var->name, name);
+    new_var->name = strdup(name);
     new_var->type = VAR_DICT;
     new_var->value.dict = dict;
     new_var->value.func.param = NULL;
@@ -34,8 +69,11 @@ void dict_set(Dict *dict, char *key, Value *val){
     {
         if (strcmp(dict ->entries[i].key, key) == 0)
         {
-
-            *(dict->entries[i].value) = *val;
+            if (dict->entries[i].value->type == VAR_STRING)
+            {
+                free(dict->entries[i].value->value.str);
+            }
+            *(dict->entries[i].value) = clone_value(*val);
 
             return;
         }
@@ -48,7 +86,7 @@ void dict_set(Dict *dict, char *key, Value *val){
     }
     dict->entries[dict->count].key = strdup(key);
     dict->entries[dict->count].value = malloc(sizeof(Value));
-    *(dict->entries[dict->count].value) = *val; 
+    *(dict->entries[dict->count].value) = clone_value(*val);
     dict->count++;
 }
 
@@ -80,7 +118,7 @@ void assignNumberVar(char *name, double num)
         }
     Value *new_var = malloc(sizeof(Value));
 
-    strcpy(new_var->name, name);
+    new_var->name = strdup(name);
     new_var->type = VAR_NUMBER;
     new_var->value.num = num;
 
@@ -99,15 +137,16 @@ void assignStringVar(char *name, char *str_value)
         if (strcmp(sc->vars[i]->name, name) == 0)
         {
             sc->vars[i]->type = VAR_STRING;
-            strcpy(sc->vars[i]->value.str, str_value);
+            free(sc->vars[i]->value.str);
+            sc->vars[i]->value.str = strdup(str_value);
             return;
         }
 
     Value *new_var = malloc(sizeof(Value));
 
-    strcpy(new_var->name, name);
+    new_var->name = strdup(name);
     new_var->type = VAR_STRING;
-    strcpy(new_var->value.str, str_value);
+    new_var->value.str = strdup(str_value);
 
     new_var->value.func.param = NULL;
     new_var->value.func.param_count = 0;
@@ -130,7 +169,7 @@ void function_definition(char *name, int start,char **params, int param_count)
         }
 
     Value *new_var = malloc(sizeof(Value));
-    strcpy(new_var->name, name);
+    new_var->name = strdup(name);
     new_var->type = VAR_FUNCTION;
     new_var->value.func.start = start;
 
@@ -156,7 +195,7 @@ void assignNullVar(char *name)
         }
 
     Value *new_var = malloc(sizeof(Value));
-    strcpy(new_var->name, name);
+    new_var->name = strdup(name);
     new_var->type = VAR_NULL;
     sc->vars[sc->count] = new_var;
     sc->count++;
@@ -171,13 +210,13 @@ Value getVarValue(char *name)
         for (int i = 0; i < sc->count; i++)
             if (strcmp(sc->vars[i]->name, name) == 0)
             {
-                strcpy(v.name, sc->vars[i]->name);
+                v.name = strdup(sc->vars[i]->name);
 
                 v.type = sc->vars[i]->type;
                 if (v.type == VAR_NUMBER)
                     v.value.num = sc->vars[i]->value.num;
                 else if (v.type == VAR_STRING)
-                    strcpy(v.value.str, sc->vars[i]->value.str);
+                    v.value.str = strdup(sc->vars[i]->value.str);
                 else if (v.type == VAR_FUNCTION)
                 {
                     v.value.func.start = sc->vars[i]->value.func.start;
@@ -190,7 +229,7 @@ Value getVarValue(char *name)
                 }
                 else if (v.type == VAR_NULL)
                 {
-                    strcpy(v.name, "null");
+                    v.name = strdup("null");
                     v.type = VAR_NULL;
                 }
                 else if (v.type == VAR_NATIVE)
@@ -233,7 +272,7 @@ void setVariable(char *name, Value value){
         Scope *sc = &scope_stack[scope_depth];
         Value *new_var = malloc(sizeof(Value));
 
-        strcpy(new_var->name, name);
+        new_var->name = strdup(name);
         new_var->type = VAR_NATIVE;
         new_var->value = value.value;
         sc->vars[sc->count] = new_var;
@@ -270,6 +309,10 @@ void popScope()
             if (sc->vars[i]->type == VAR_DICT)
             {
                 for (int j = 0; j < sc->vars[i]->value.dict->count; j++){
+                    if (sc->vars[i]->type == VAR_STRING)
+                    {
+                        free(sc->vars[i]->value.str);
+                    }
                     free(sc->vars[i]->value.dict->entries[j].key);
                     free(sc->vars[i]->value.dict->entries[j].value);
                 }

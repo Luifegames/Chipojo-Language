@@ -17,7 +17,7 @@ Value string_upper(Value *args, int arg_count, int line)
 
     result.type = VAR_STRING;
 
-    strcpy(result.value.str, self.value.str);
+    result.value.str =  strdup(self.value.str);
 
     for (int i = 0; result.value.str[i]; i++)
     {
@@ -41,7 +41,7 @@ Value string_lower(Value *args, int arg_count, int line)
 
     result.type = VAR_STRING;
 
-    strcpy(result.value.str, self.value.str);
+    result.value.str = strdup(self.value.str);
 
     for (int i = 0; result.value.str[i]; i++)
     {
