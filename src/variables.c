@@ -59,8 +59,7 @@ void dict_new(char *name, Dict *dict){
     new_var->value.func.param = NULL;
     new_var->value.func.param_count = 0;
 
-    sc->vars[sc->count] = new_var;
-    sc->count++;
+    sc->vars[sc->count++] = new_var;
 }
 
 void dict_set(Dict *dict, char *key, Value *val){
@@ -86,8 +85,7 @@ void dict_set(Dict *dict, char *key, Value *val){
     }
     dict->entries[dict->count].key = strdup(key);
     dict->entries[dict->count].value = malloc(sizeof(Value));
-    *(dict->entries[dict->count].value) = clone_value(*val);
-    dict->count++;
+    *(dict->entries[dict->count++].value) = clone_value(*val);
 }
 
 Value dict_get(Dict *d, char *key)
@@ -96,8 +94,7 @@ Value dict_get(Dict *d, char *key)
     {
         if (strcmp(d->entries[i].key, key) == 0)
         {
-            Value v = *d->entries[i].value;
-            return v;
+            return clone_value(*d->entries[i].value);
         }
     }
     Value null_val;
@@ -125,8 +122,7 @@ void assignNumberVar(char *name, double num)
     new_var->value.func.param = NULL;
     new_var->value.func.param_count = 0;
 
-    sc->vars[sc->count] = new_var;
-    sc->count++;
+    sc->vars[sc->count++] = new_var;
 }
 
 void assignStringVar(char *name, char *str_value)
@@ -151,8 +147,7 @@ void assignStringVar(char *name, char *str_value)
     new_var->value.func.param = NULL;
     new_var->value.func.param_count = 0;
 
-    sc->vars[sc->count] = new_var;
-    sc->count++;
+    sc->vars[sc->count++] = new_var;
 
 }
 
@@ -178,8 +173,7 @@ void function_definition(char *name, int start,char **params, int param_count)
         new_var->value.func.param[i] = strdup(params[i]);
 
     new_var->value.func.param_count = param_count;
-    sc->vars[sc->count] = new_var;
-    sc->count++;
+    sc->vars[sc->count++] = new_var;
 
 }
 
@@ -197,8 +191,7 @@ void assignNullVar(char *name)
     Value *new_var = malloc(sizeof(Value));
     new_var->name = strdup(name);
     new_var->type = VAR_NULL;
-    sc->vars[sc->count] = new_var;
-    sc->count++;
+    sc->vars[sc->count++] = new_var;
     }
 
 Value getVarValue(char *name)
@@ -275,8 +268,7 @@ void setVariable(char *name, Value value){
         new_var->name = strdup(name);
         new_var->type = VAR_NATIVE;
         new_var->value = value.value;
-        sc->vars[sc->count] = new_var;
-        sc->count++;
+        sc->vars[sc->count++] = new_var;
     }
     else{
         undefined_variable_error(name, current_token.line);
@@ -288,9 +280,7 @@ void pushScope(){
     {
         runtime_error("Maximum scope depth exceeded");
     }
-    scope_depth++;
-
-    scope_stack[scope_depth].count = 0;
+    scope_stack[++scope_depth].count = 0;
 }
 
 void popScope()
