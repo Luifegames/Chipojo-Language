@@ -1,12 +1,17 @@
 CC = gcc
+
 CFLAGS = -Wall -Iinclude -g
+
+LIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
 
 SRC_DIR = src
 INC_DIR = include
 OBJ_DIR = obj
-BIN = lizard
+
+BIN = lizard.exe
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
+
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 
 all: $(BIN)
@@ -18,7 +23,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(BIN): $(OBJS)
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ $(LIBS)
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN)
