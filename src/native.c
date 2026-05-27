@@ -55,6 +55,12 @@ Value native_abs(Value *args, int arg_count, int line)
 static NativeFunctions natives[] = {
     {"show", native_print},
     {"abs", native_abs},
+    {"window", native_window},
+    {"should_close", native_should_close},
+    {"begin_draw", native_begin_draw},
+    {"end_draw", native_end_draw},
+    {"clear", native_clear},
+    {"draw_text", native_draw_text},
     {NULL, NULL}};
 
 void register_natives()
