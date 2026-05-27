@@ -15,6 +15,10 @@ Value native_print(Value *args, int arg_count, int line)
         {
             dict_print(args[i].value.dict);
         }
+        else if (args[i].type == VAR_LIST)
+        {
+            list_print(args[i].value.list);
+        }
         if (i < arg_count - 1)
             printf(" ");
     }
@@ -60,6 +64,6 @@ void register_natives()
         Value v = {0};
         v.type = VAR_NATIVE;
         v.value.native_func = natives[i].func;
-        setVariable(natives[i].name, v);
+        variable_set(natives[i].name, v);
     }
 }

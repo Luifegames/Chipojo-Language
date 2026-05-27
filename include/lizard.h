@@ -50,6 +50,8 @@ typedef enum
     TOKEN_OR,           // or
     TOKEN_NOT,          // not
     TOKEN_ERROR,
+    TOKEN_RIGHTBRACKET, //]
+    TOKEN_LEFTBRACKET,  //[
     TOKEN_EOF
 } TokenType;
 

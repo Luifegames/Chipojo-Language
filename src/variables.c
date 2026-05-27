@@ -32,12 +32,30 @@ Value clone_value(Value v)
     case VAR_NATIVE:
         copy.value.native_func = v.value.native_func;
         break;
+    case VAR_LIST:
+        copy.value.list = v.value.list;
+        break;
+
+    case VAR_NULL:
+        break;
 
     default:
+        runtime_error("Error in clone value method");
         break;
     }
 
     return copy;
+}
+
+void list_push(List *list, Value val)
+{
+    if (list->count >= list->capacity)
+    {
+        list->capacity *= 2;
+        list->items = realloc(list->items, sizeof(Value) * list->capacity);
+    }
+
+    list->items[list->count++] = clone_value(val);
 }
 
 void dict_new(char *name, Dict *dict){
@@ -56,6 +74,29 @@ void dict_new(char *name, Dict *dict){
     new_var->name = strdup(name);
     new_var->type = VAR_DICT;
     new_var->value.dict = dict;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
+
+    sc->vars[sc->count++] = new_var;
+}
+
+void list_new(char *name, List *list)
+{
+    Scope *sc = &scope_stack[scope_depth];
+
+    for (int i = 0; i < sc->count; i++)
+        if (strcmp(sc->vars[i]->name, name) == 0)
+        {
+            sc->vars[i]->type = VAR_LIST;
+            sc->vars[i]->value.list = list;
+
+            return;
+        }
+    Value *new_var = malloc(sizeof(Value));
+
+    new_var->name = strdup(name);
+    new_var->type = VAR_LIST;
+    new_var->value.list = list;
     new_var->value.func.param = NULL;
     new_var->value.func.param_count = 0;
 
@@ -102,7 +143,7 @@ Value dict_get(Dict *d, char *key)
     return null_val;
 }
 
-void assignNumberVar(char *name, double num)
+void assign_number_val(char *name, double num)
 {
     Scope *sc = &scope_stack[scope_depth];
     for (int i = 0; i < sc->count; i++)
@@ -125,7 +166,7 @@ void assignNumberVar(char *name, double num)
     sc->vars[sc->count++] = new_var;
 }
 
-void assignStringVar(char *name, char *str_value)
+void assign_string_val(char *name, char *str_value)
 {
     Scope *sc = &scope_stack[scope_depth];
 
@@ -151,7 +192,7 @@ void assignStringVar(char *name, char *str_value)
 
 }
 
-void function_definition(char *name, int start,char **params, int param_count)
+void define_function(char *name, int start,char **params, int param_count)
 {
     Scope *sc = &scope_stack[scope_depth];
     for (int i = 0; i < sc->count; i++)
@@ -177,7 +218,7 @@ void function_definition(char *name, int start,char **params, int param_count)
 
 }
 
-void assignNullVar(char *name)
+void assign_null_val(char *name)
 {
     Scope *sc = &scope_stack[scope_depth];
     for (int i = 0; i < sc->count; i++)
@@ -194,7 +235,7 @@ void assignNullVar(char *name)
     sc->vars[sc->count++] = new_var;
     }
 
-Value getVarValue(char *name)
+Value var_value_get(char *name)
 {
     Value v = {0};
     for (int d = scope_depth; d >= 0; d--)
@@ -220,6 +261,10 @@ Value getVarValue(char *name)
                 {
                     v.value.dict = sc->vars[i]->value.dict;
                 }
+                else if (v.type == VAR_LIST)
+                {
+                    v.value.list = sc->vars[i]->value.list;
+                }
                 else if (v.type == VAR_NULL)
                 {
                     v.name = strdup("null");
@@ -242,23 +287,27 @@ Value getVarValue(char *name)
     return v;
 }
 
-void setVariable(char *name, Value value){
+void variable_set(char *name, Value value){
     
     if (value.type == VAR_STRING)
     {
-        assignStringVar(name, value.value.str);
+        assign_string_val(name, value.value.str);
         }
     else if (value.type == VAR_NULL)
     {
-        assignNullVar(name);
+        assign_null_val(name);
     }
     else if (value.type == VAR_NUMBER)
     {
-        assignNumberVar(name, value.value.num);
+        assign_number_val(name, value.value.num);
     }
     else if (value.type == VAR_DICT)
     {
         dict_new(name, value.value.dict);
+    }
+    else if (value.type == VAR_LIST)
+    {
+        list_new(name, value.value.list);
     }
     else if (value.type == VAR_NATIVE)
     {
@@ -275,7 +324,20 @@ void setVariable(char *name, Value value){
     }
 }
 
-void pushScope(){
+
+
+
+
+Value list_get(List *list, int index){
+
+    if (index < 0 || index >= list->count){
+        runtime_error("List index out of range");
+    }
+
+    return clone_value(list->items[index]);
+}
+
+void push_scope(){
     if (scope_depth + 1 >= MAX_SCOPE)
     {
         runtime_error("Maximum scope depth exceeded");
@@ -283,7 +345,7 @@ void pushScope(){
     scope_stack[++scope_depth].count = 0;
 }
 
-void popScope()
+void pop_scope()
 {
     if (scope_depth > 0)
     {
@@ -296,21 +358,39 @@ void popScope()
                     free(sc->vars[i]->value.func.param[j]);
                 free(sc->vars[i]->value.func.param);
             }
-            if (sc->vars[i]->type == VAR_DICT)
+            
+            if (sc->vars[i]->type == VAR_LIST)
             {
-                for (int j = 0; j < sc->vars[i]->value.dict->count; j++){
-                    if (sc->vars[i]->type == VAR_STRING)
+                List *list = sc->vars[i]->value.list;
+
+                for (int j = 0; j < list->count; j++)
+                {
+                    if (list->items[j].type == VAR_STRING)
                     {
-                        free(sc->vars[i]->value.str);
+                        free(list->items[j].value.str);
                     }
-                    free(sc->vars[i]->value.dict->entries[j].key);
-                    free(sc->vars[i]->value.dict->entries[j].value);
                 }
-                free(sc->vars[i]->value.dict->entries);
-                free(sc->vars[i]->value.dict);
+
+                free(list->items);
+                free(list);
             }
-            free(sc->vars[i]); 
-        }
+
+                if (sc->vars[i]->type == VAR_DICT)
+                {
+                    for (int j = 0; j < sc->vars[i]->value.dict->count; j++)
+                    {
+                        if (sc->vars[i]->type == VAR_STRING)
+                        {
+                            free(sc->vars[i]->value.str);
+                        }
+                        free(sc->vars[i]->value.dict->entries[j].key);
+                        free(sc->vars[i]->value.dict->entries[j].value);
+                    }
+                    free(sc->vars[i]->value.dict->entries);
+                    free(sc->vars[i]->value.dict);
+                }
+                free(sc->vars[i]);
+            }
         scope_depth--;
     }
 }

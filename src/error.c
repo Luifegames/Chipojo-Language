@@ -74,6 +74,10 @@ const char *token_to_string(TokenType type)
         return "error";
     case TOKEN_RETURN:
         return "return";
+    case  TOKEN_LEFTBRACKET:
+        return "[";
+    case TOKEN_RIGHTBRACKET:
+        return "]";
     case TOKEN_EOF:
         return "file end";
     default:

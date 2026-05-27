@@ -8,7 +8,7 @@ Value string_upper(Value *args, int arg_count, int line)
 
     if (arg_count != 1)
     {
-        syntax_error_line("Upper no need argument", line);
+        syntax_error_line("upper()", line);
     }
 
 
@@ -33,7 +33,7 @@ Value string_lower(Value *args, int arg_count, int line)
 
     if (arg_count != 1)
     {
-        syntax_error_line("Lower no need argument", line);
+        syntax_error_line("lower()", line);
     }
 
     Value self = args[0];
@@ -52,21 +52,25 @@ Value string_lower(Value *args, int arg_count, int line)
     return result;
 }
 
-
-
-Value dict_size(Value *args, int arg_count, int line)
+Value size_get(Value *args, int arg_count, int line)
 {
 
     if (arg_count != 1)
     {
-        syntax_error_line("Size no need argument", line);
+        syntax_error_line("size()", line);
     }
 
     Value self = args[0];
     Value result = {0};
     result.type = VAR_NUMBER;
-    result.value.num =
-        self.value.dict->count;
+    if (self.type == VAR_DICT){
+        result.value.num =self.value.dict->count;
+    }
+    else if (self.type == VAR_LIST)
+    {
+        result.value.num =self.value.list->count;
+    }
+    
     return result;
 }
 
@@ -75,7 +79,7 @@ Value dict_has(Value *args, int arg_count, int line)
 
     if (arg_count != 2)
     {
-        syntax_error_line("Need 1 argument", line);
+        syntax_error_line("has(value)", line);
     }
 
     if (args[1].type != VAR_STRING)
@@ -98,7 +102,7 @@ Value dict_getter(Value *args, int arg_count, int line)
 {
     if (arg_count != 2)
     {
-        syntax_error_line("Need 1 argument", line);
+        syntax_error_line("get(value)", line);
     }
 
     if (args[1].type != VAR_STRING)
@@ -116,7 +120,7 @@ Value dict_setter(Value *args, int arg_count, int line)
 {
     if (arg_count != 3)
     {
-        syntax_error_line("Need 2 argument", line);
+        syntax_error_line("set(key,value)", line);
     }
 
     if (args[1].type != VAR_STRING)
@@ -132,16 +136,296 @@ Value dict_setter(Value *args, int arg_count, int line)
     return result;
 }
 
+Value list_getter(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        syntax_error_line("Need 1 argument", line);
+    }
+
+    if (args[1].type != VAR_NUMBER)
+    {
+        syntax_error_line("Get argument must be a Number", line);
+    }
+
+    Value self = args[0];
+    int index = args[1].value.num;
+    Value result = list_get(self.value.list, index);
+    return result;
+}
+
+Value list_add(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        runtime_error("push() takes 1 arg");
+    }
+    Value object = args[0];
+    list_push(object.value.list, args[1]);
+
+    Value nullv = {0};
+    nullv.type = VAR_NULL;
+
+    return nullv;
+}
+
+Value list_pop(Value *args, int arg_count, int line)
+{
+    if (arg_count !=1)
+    {
+        runtime_error("pop() no need arg");
+    }
+    Value object = args[0];
+    List *list = object.value.list;
+    Value v = {0};
+    v.type = VAR_NULL;
+    if (list->count > 0)
+    {
+        v = clone_value(
+            list->items[list->count - 1]);
+
+        list->count--;
+    }
+    return v;
+}
+
+Value list_is_empty(Value *args, int arg_count, int line)
+{
+    if (arg_count != 1)
+    {
+        runtime_error("is_empty() no need arg");
+    }
+    Value object = args[0];
+    Value v = {0};
+    v.type = VAR_NUMBER;
+    v.value.num = object.value.list->count == 0;
+    return v;
+}
+
+Value list_insert(Value *args, int arg_count, int line)
+{
+    if (arg_count != 3)
+    {
+        runtime_error("insert(index, value)");
+    }
+
+    List *list = args[0].value.list;
+
+    if (args[1].type != VAR_NUMBER)
+    {
+        runtime_error("Index must be number");
+    }
+
+    int index = (int)args[1].value.num;
+
+    if (index < 0 || index > list->count)
+    {
+        runtime_error("Index out of range");
+    }
+
+    if (list->count >= list->capacity)
+    {
+        list->capacity *= 2;
+
+        list->items = realloc(
+            list->items,
+            sizeof(Value) * list->capacity);
+    }
+
+    for (int i = list->count; i > index; i--)
+    {
+        list->items[i] = list->items[i - 1];
+    }
+
+    list->items[index] = clone_value(args[2]);
+
+    list->count++;
+
+    Value v = {0};
+    v.type = VAR_NULL;
+
+    return v;
+}
+
+Value list_remove(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        runtime_error("remove(index)");
+    }
+
+    List *list = args[0].value.list;
+
+    int index = (int)args[1].value.num;
+
+    if (index < 0 || index >= list->count)
+    {
+        runtime_error("Index out of range");
+    }
+
+    Value removed = clone_value(list->items[index]);
+
+    for (int i = index; i < list->count - 1; i++)
+    {
+        list->items[i] = list->items[i + 1];
+    }
+
+    list->count--;
+
+    return removed;
+}
+
+Value list_clear(Value *args, int arg_count, int line)
+{
+    if (arg_count != 1)
+    {
+        runtime_error("clear()");
+    }
+
+    List *list = args[0].value.list;
+
+    list->count = 0;
+
+    Value v = {0};
+    v.type = VAR_NULL;
+
+    return v;
+}
+
+int value_equals(Value a, Value b)
+{
+    if (a.type != b.type)
+        return 0;
+
+    switch (a.type)
+    {
+    case VAR_NUMBER:
+        return a.value.num == b.value.num;
+
+    case VAR_STRING:
+        return strcmp(a.value.str, b.value.str) == 0;
+
+    case VAR_NULL:
+        return 1;
+
+    default:
+        return 0;
+    }
+}
+
+Value list_contains(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        runtime_error("contains(value)");
+    }
+
+    List *list = args[0].value.list;
+
+    for (int i = 0; i < list->count; i++)
+    {
+        if (value_equals(list->items[i], args[1]))
+        {
+            Value v = {0};
+
+            v.type = VAR_NUMBER;
+            v.value.num = 1;
+
+            return v;
+        }
+    }
+
+    Value v = {0};
+
+    v.type = VAR_NUMBER;
+    v.value.num = 0;
+
+    return v;
+}
+
+Value list_find(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        runtime_error("find(value)");
+    }
+
+    List *list = args[0].value.list;
+
+    for (int i = 0; i < list->count; i++)
+    {
+        if (value_equals(list->items[i], args[1]))
+        {
+            Value v = {0};
+
+            v.type = VAR_NUMBER;
+            v.value.num = i;
+
+            return v;
+        }
+    }
+
+    Value v = {0};
+
+    v.type = VAR_NUMBER;
+    v.value.num = -1;
+
+    return v;
+}
+Value list_reverse(Value *args, int arg_count, int line)
+{
+    if (arg_count != 1)
+    {
+        runtime_error("reverse()");
+    }
+
+    List *list = args[0].value.list;
+
+    int start = 0;
+    int end = list->count - 1;
+
+    while (start < end)
+    {
+        Value temp = list->items[start];
+
+        list->items[start] = list->items[end];
+
+        list->items[end] = temp;
+
+        start++;
+        end--;
+    }
+
+    Value v = {0};
+
+    v.type = VAR_NULL;
+
+    return v;
+}
 MethodEntry string_methods[] = {
     {"upper", string_upper},
     {"lower", string_lower},
     {NULL, NULL}};
 
 MethodEntry dict_methods[] = {
-    {"size", dict_size},
+    {"size", size_get},
     {"has", dict_has},
     {"get", dict_getter},
     {"set", dict_setter},
+    {NULL, NULL}};
+
+MethodEntry list_methods[] = {
+    {"size", size_get},
+    {"get", list_getter},
+    {"push", list_add},
+    {"pop", list_pop},
+    {"is_empty", list_is_empty},
+    {"insert", list_insert},
+    {"remove", list_remove},
+    {"clear", list_clear},
+    {"contains", list_contains},
+    {"find", list_find},
+    {"reverse", list_reverse},
     {NULL, NULL}};
 
 Value call_method(Value object,char *method,Value *args,int arg_count,int line)
@@ -157,6 +441,9 @@ Value call_method(Value object,char *method,Value *args,int arg_count,int line)
 
     case VAR_DICT:
         table = dict_methods;
+        break;
+    case VAR_LIST:
+        table = list_methods;
         break;
 
     default:

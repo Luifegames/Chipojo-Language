@@ -2,7 +2,7 @@
 <div align="center">
 <img src="https://github.com/Luifegames/Lizard-Language/blob/74f78dcaae82aeed552b0b00ab53031f4293c24a/icon.svg" alt="Logo Lizard Language" width="250" />
 </div>
-**Lizard** is a small, C‑based interpreted language designed for learning and experimentation. It supports variables, arithmetic, comparisons, conditionals,dictionaries and functions.
+**Lizard** is a small, C‑based interpreted language designed for learning and experimentation.
 
 ## Features
 
@@ -15,6 +15,7 @@
 - **Print** – `show(...)` with `+` concatenation (strings, ints, variables)  
 - **Conditionals** – `if`, `elif`, `else` with `{ }` blocks  
 - **Loops** – `while`  
+- **List** – [v1,v2,v3]  
 - **Dictionaries** – `{key:value}
 - **Functions** – user‑defined with func, parameters, return, and recursion
 - **File extension** – `.lzd`  
@@ -180,6 +181,131 @@ show(person)   // {name:Alice,age:31,active:true,city:Paris}
 ### Notes
 Keys are strings; using a non‑string key will cause an error.
 Accessing a non‑existent key returns null.
+
+## Lists
+
+Lizard supports dynamic lists with built-in methods.
+
+### Creating Lists
+```lizard
+numbers = [1, 2, 3]
+
+names = ["Luis", "Ana", "Carlos"]
+
+mixed = [1, "hello", null]
+```
+
+### Access Elements
+```lizard
+numbers = [10, 20, 30]
+
+show(numbers[0]) // 10
+show(numbers[1]) // 20
+Nested Lists
+matrix = [
+    [1, 2],
+    [3, 4]
+]
+
+show(matrix[1][0]) // 3
+```
+
+### List Methods
+- **size()**
+
+Returns the amount of elements in the list.
+```lizard
+numbers = [1, 2, 3]
+
+show(numbers.size()) // 3
+```
+
+- **get(index)**
+
+Returns the element at the specified index.
+```lizard
+numbers = [10, 20, 30]
+
+show(numbers.get(2)) // 30
+```
+- **push(value)**
+
+Adds a new element to the end of the list.
+```lizard
+numbers = [1, 2]
+
+numbers.push(3)
+
+show(numbers) // [1, 2, 3]
+```
+
+- **pop()**
+
+Removes and returns the last element.
+```lizard
+numbers = [1, 2, 3]
+
+value = numbers.pop()
+
+show(value) // 3
+
+show(numbers) // [1, 2]
+```
+
+- **is_empty()**
+
+Returns true if the list is empty.
+```lizard
+numbers = []
+
+show(numbers.is_empty()) // true
+```
+
+- **insert(index,value)**
+
+Insert a value inside the list.
+```lizard
+nums = [1,2,3]
+
+nums.insert(1, 99)
+
+show(nums) // [1,99,2,3]
+```
+- **remove(index)**
+Remove a value of the list
+```lizard
+nums = [10,20,30]
+
+nums.remove(1)
+
+show(nums) //[10,30]
+```
+- **contains(value)**
+
+Returns true if the value exists in the list.
+```lizard
+nums = [1, 2, 3]
+
+show(nums.contains(2)) // 1
+```
+- **find(value)**
+
+Returns the index of the value inside the list.
+```lizard
+nums = [10, 20, 30]
+
+show(nums.find(20)) // 1
+```
+- **reverse()**
+
+Reverses the list in place.
+```lizard
+nums = [1, 2, 3]
+
+nums.reverse()
+
+show(nums) // [3, 2, 1]
+```
 
 ## Functions
 

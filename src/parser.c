@@ -26,8 +26,38 @@
     Value parse_postfix(Value base);
     Value get_property(Value object, char *property, int line);
 
+    // Lists
+    Value define_list()
+    {
+        consume(TOKEN_LEFTBRACKET, "Expected '['");
 
+        List *list = malloc(sizeof(List));
 
+        list->count = 0;
+        list->capacity = 4;
+        list->items = malloc(sizeof(Value) * list->capacity);
+
+        int bracket = 1;
+        while (bracket != 0)
+        {
+
+            Value val = expression();
+            list_push(list, val);
+            if (current_token.type == TOKEN_LEFTBRACKET) bracket ++;
+            if (current_token.type == TOKEN_RIGHTBRACKET) bracket --;
+            if (current_token.type == TOKEN_COMMA)
+            {
+                consume(TOKEN_COMMA, "Expected ','");
+            }
+        }
+        consume(TOKEN_RIGHTBRACKET, "Expected ']'");
+        Value v = {0};
+        v.type = VAR_LIST;
+        v.value.list = list;
+        return v;
+    }
+
+    //Dictionaries
     Value define_dict(){
         consume(TOKEN_LEFTBRACE, "Expected '{'");
         int braces = 1;
@@ -102,7 +132,7 @@
         return left;
     }
 
-    void defineNewFunction()
+    void define_new_function()
     {
 
         consume(TOKEN_FUNC, "expected func");
@@ -136,7 +166,7 @@
                 forward();
         }
         
-        function_definition(name, start, params,param_count);
+        define_function(name, start, params,param_count);
     }
 
     Value if_stmt()
@@ -479,6 +509,29 @@
 
     Value parse_postfix(Value base){
         while (1){
+            if (current_token.type == TOKEN_LEFTBRACKET) // Get list value
+            {
+                consume(TOKEN_LEFTBRACKET, "Expected '['");
+
+                Value idx = expression();
+
+                consume(TOKEN_RIGHTBRACKET, "Expected ']'");
+
+                if (base.type != VAR_LIST)
+                {
+                    runtime_error("Value is not a list");
+                }
+
+                if (idx.type != VAR_NUMBER)
+                {
+                    runtime_error("List index must be number");
+                }
+
+                base = list_get(base.value.list, (int)idx.value.num);
+
+                continue;
+            }
+
             if (current_token.type == TOKEN_DOT){
                 consume(TOKEN_DOT, "Expected '.'");
 
@@ -632,13 +685,13 @@
 
                 char name[256];
                 strcpy(name, current_token.name);
-                Value old = getVarValue(name);
+                Value old = var_value_get(name);
                 if (old.type != VAR_NUMBER)
                 {
                     syntax_error("Bad operation", token);
                 }
                 double new_val = (op == TOKEN_INC) ? old.value.num + 1 : old.value.num - 1;
-                assignNumberVar(name, new_val);
+                assign_number_val(name, new_val);
                 forward();
                 v.type = VAR_NUMBER;
                 v.value.num = new_val;
@@ -653,6 +706,10 @@
                 v.type = VAR_NUMBER;
                 v.value.num = truthy ? 0 : 1;
                 return v;
+            }
+            else if (current_token.type == TOKEN_LEFTBRACKET){
+                return define_list();
+
             }
 
             else if (current_token.type == TOKEN_TRUE)
@@ -698,7 +755,7 @@
                 char name[64];
                 strcpy(name, current_token.name);
                 consume(TOKEN_ID,"Expected identifier");
-                Value base = getVarValue(name);
+                Value base = var_value_get(name);
 
                 return parse_postfix(base);
 
@@ -733,7 +790,7 @@
 
         void assign_compound(char *name, TokenType op, double val, int op_line)
         {
-            Value v = getVarValue(name);
+            Value v = var_value_get(name);
             double current = v.value.num;
             double result;
             switch (op)
@@ -759,7 +816,7 @@
         default:
             return;
         }
-        assignNumberVar(name, result);
+        assign_number_val(name, result);
     }
 
     void assignation()
@@ -781,10 +838,10 @@
             }
             strcpy(name, current_token.name);
             forward();
-            Value v = getVarValue(name);
+            Value v = var_value_get(name);
             double old = v.value.num;
             double new_val = (op == TOKEN_INC) ? old + 1 : old - 1;
-            assignNumberVar(name, new_val);
+            assign_number_val(name, new_val);
             return;
         }
 
@@ -799,21 +856,21 @@
             if (peek_next_token_type() == TOKEN_DOT) // is a dictionary
             {
                 forward();
-                Value base = getVarValue(name);
+                Value base = var_value_get(name);
 
-                consume(TOKEN_DOT, "Expected '.'");
-
+            
                 char member[64];
                 strcpy(member, current_token.name);
-                consume(TOKEN_ID, "Expected identifier");
-
                 Value object = parse_postfix(base);
 
+                if (object.type == VAR_DICT){
                 Dict *dict = object.value.dict;
                 
                 consume(TOKEN_ASIGN, "Expected '=");
                 Value val = expression();
                 dict_set(dict, member, &val);
+
+                }
                 return;
             }
 
@@ -823,10 +880,10 @@
             {
                 TokenType op = current_token.type;
                 forward();
-                Value v = getVarValue(name);
+                Value v = var_value_get(name);
                 double old = v.value.num;
                 double new_val = (op == TOKEN_INC) ? old + 1 : old - 1;
-                assignNumberVar(name, new_val);
+                assign_number_val(name, new_val);
                 return;
             }
 
@@ -847,13 +904,13 @@
 
 
         Value val = expression();
-        setVariable(name,val);
+        variable_set(name,val);
         }
     }
 
     Value function_call(Value func_val, Value *args_v, int count, int last_index)
     {
-        pushScope();
+        push_scope();
             if (count < func_val.value.func.param_count)
             {
                 syntax_error_line("Few params in function",current_token.line);
@@ -865,14 +922,14 @@
 
             for (int x = 0; x < count; x++)
             {
-                setVariable(func_val.value.func.param[x], args_v[x]);
+                variable_set(func_val.value.func.param[x], args_v[x]);
             }
             indx = func_val.value.func.start;
             forward(); // Update position on first token in function
             Value ret_val = block();
             indx = last_index;
             forward();
-            popScope();
+            pop_scope();
             return ret_val;
     }
 
@@ -905,6 +962,38 @@
         printf(" }");
     }
 
+    void list_print(List *list)
+    {
+        printf("[");
+        for (int e = 0; e < list->count; e++)
+        {
+            switch (list->items[e].type)
+            {
+            case VAR_STRING:
+                printf("%s", list->items[e].value.str);
+                break;
+            case VAR_NULL:
+                printf("%s", "null");
+                break;
+            case VAR_DICT:
+                dict_print(list->items[e].value.dict);
+                break;
+            case VAR_LIST:
+                list_print(list->items[e].value.list);
+                break;
+
+            default:
+                printf("%g", list->items[e].value.num);
+                break;
+            }
+            if (e < list->count - 1)
+            {
+                printf(", ");
+            }
+        }
+        printf("]");
+    }
+
     void program()
     {
         while (current_token.type != TOKEN_EOF)
@@ -919,7 +1008,7 @@
             }
             else if (current_token.type == TOKEN_FUNC)
             {
-                defineNewFunction();
+                define_new_function();
             }
             else if (current_token.type == TOKEN_IF)
             {

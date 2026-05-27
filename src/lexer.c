@@ -323,6 +323,12 @@ Token nextToken()
     case ',':
         t.type = TOKEN_COMMA;
         break;
+    case '[':
+        t.type = TOKEN_LEFTBRACKET;
+        break;
+    case ']':
+        t.type = TOKEN_RIGHTBRACKET;
+        break;
     default:
         nextChar();
         return nextToken();

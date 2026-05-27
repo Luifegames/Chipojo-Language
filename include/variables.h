@@ -16,6 +16,7 @@ typedef enum
     VAR_STRING,
     VAR_FUNCTION,
     VAR_DICT,
+    VAR_LIST,
     VAR_NATIVE,
     VAR_NULL
 } VarType;
@@ -36,6 +37,14 @@ typedef struct
     int capacity;
 } Dict;
 
+//List
+typedef struct{
+    Value *items;
+    int count;
+    int capacity;
+}List;
+
+
 //Scope
 typedef struct
 {
@@ -54,6 +63,7 @@ typedef struct Value
         double num;
         char *str;
         Dict *dict;
+        List *list;
 
     struct
     {
@@ -61,22 +71,29 @@ typedef struct Value
         char **param;
         int param_count;
     } func;
+
+
+
     NativeFunction native_func;
     } value;
 } Value;
 
-void assignNumberVar(char *name, double val);
+void assign_number_val(char *name, double val);
 void dict_set(Dict *dict, char *key, Value *val);
 Value dict_get(Dict *d, char *key);
+void list_push(List *list, Value val);
 void dict_new(char *name, Dict *dict);
-void assignStringVar(char *name, char *val);
-void function_definition(char *name, int start,char** params,int param_count);
-void assignNullVar(char *name);
-Value getVarValue(char *name);
-Value getFunction(char *name);
-void setVariable(char *name, Value value);
-void pushScope();
-void popScope();
+void list_new(char *name, List *list);
+void assign_string_val(char *name, char *val);
+void define_function(char *name, int start,char** params,int param_count);
+void assign_null_val(char *name);
+Value var_value_get(char *name);
+// Value getFunction(char *name);
+Value list_get(List *list, int index);
+Value clone_value(Value v);
+void variable_set(char *name, Value value);
+void push_scope();
+void pop_scope();
 
 extern Scope scope_stack[MAX_SCOPE];
 extern int scope_depth;
