@@ -107,7 +107,7 @@ Lizard/
 
 ## Installation Lizard Language for VS Code
 
-1. Download the latest `.vsix` file from the [Releases](https://github.com/Luifegames/lizard-language/releases) page of this repository.
+1. Download the latest `.vsix` file from the [Plugin](https://github.com/Luifegames/lizard-language-vscode/releases/tag/v0.0.1) page of this repository.
 
 2. Open **VS Code**.
 
