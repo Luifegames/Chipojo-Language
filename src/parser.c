@@ -724,19 +724,37 @@
                 v.value.num = 0;
                 return v;
             }
-            // Number
+            // Negative number
             else if (current_token.type == TOKEN_REST)
             {
+                int current_line = current_token.line;
                 forward();
-                if (current_token.type != TOKEN_NUM){
-                    char message[256];
-                    sprintf(message, "Variable %s is not a number",current_token.name);
-                    syntax_error_line(message, current_token.line);
+                if (current_token.type == TOKEN_ID)
+                {
+                    char name[256];
+                    strcpy(name, current_token.name);
+                    v = var_value_get(name);
+                    if (v.type != VAR_NUMBER)
+                    {
+                        char message[256];
+                        printf("type %d\n", current_token.type);
+                        sprintf(message, "Variable %s is not a number", current_token.name);
+                        syntax_error_line(message, current_line);
+                    }
+                    v.value.num = -v.value.num;
                 }
-                v.value.num = -current_token.value;
+                else if (current_token.type == TOKEN_NUM)
+                {
+                    v.value.num = -current_token.value;
+                }
+                else
+                {
+                    syntax_error_line("Can't assign negative value", current_line);
+                }
                 forward();
                 return v;
             }
+            // Positive number
             else if (current_token.type == TOKEN_NUM)
             {
                 v.value.num = current_token.value;
