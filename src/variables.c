@@ -59,18 +59,23 @@ void list_push(List *list, Value val)
 }
 
 void dict_new(char *name, Dict *dict){
-    Scope *sc = &scope_stack[scope_depth];
 
-    for (int i = 0; i < sc->count; i++)
-        if (strcmp(sc->vars[i]->name, name) == 0)
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
         {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
             sc->vars[i]->type = VAR_DICT;
             sc->vars[i]->value.dict = dict;
 
-            return;
+                return;
+            }
         }
+    }
     Value *new_var = malloc(sizeof(Value));
-
     new_var->name = strdup(name);
     new_var->type = VAR_DICT;
     new_var->value.dict = dict;
@@ -82,16 +87,22 @@ void dict_new(char *name, Dict *dict){
 
 void list_new(char *name, List *list)
 {
-    Scope *sc = &scope_stack[scope_depth];
 
-    for (int i = 0; i < sc->count; i++)
-        if (strcmp(sc->vars[i]->name, name) == 0)
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
         {
-            sc->vars[i]->type = VAR_LIST;
-            sc->vars[i]->value.list = list;
-
-            return;
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_LIST;
+                sc->vars[i]->value.list = list;
+                return;
+            }
         }
+    }
+
     Value *new_var = malloc(sizeof(Value));
 
     new_var->name = strdup(name);
@@ -145,15 +156,21 @@ Value dict_get(Dict *d, char *key)
 
 void assign_number_val(char *name, double num)
 {
-    Scope *sc = &scope_stack[scope_depth];
-    for (int i = 0; i < sc->count; i++)
-        if (strcmp(sc->vars[i]->name, name) == 0)
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
         {
-            sc->vars[i]->type = VAR_NUMBER;
-            sc->vars[i]->value.num = num;
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_NUMBER;
+                sc->vars[i]->value.num = num;
 
-            return;
+                return;
+            }
         }
+    }
     Value *new_var = malloc(sizeof(Value));
 
     new_var->name = strdup(name);
@@ -168,16 +185,21 @@ void assign_number_val(char *name, double num)
 
 void assign_string_val(char *name, char *str_value)
 {
-    Scope *sc = &scope_stack[scope_depth];
-
-    for (int i = 0; i < sc->count; i++)
-        if (strcmp(sc->vars[i]->name, name) == 0)
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
         {
-            sc->vars[i]->type = VAR_STRING;
-            free(sc->vars[i]->value.str);
-            sc->vars[i]->value.str = strdup(str_value);
-            return;
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_STRING;
+                free(sc->vars[i]->value.str);
+                sc->vars[i]->value.str = strdup(str_value);
+                return;
+            }
         }
+    }
 
     Value *new_var = malloc(sizeof(Value));
 
@@ -220,15 +242,20 @@ void define_function(char *name, int start,char **params, int param_count)
 
 void assign_null_val(char *name)
 {
-    Scope *sc = &scope_stack[scope_depth];
-    for (int i = 0; i < sc->count; i++)
 
-        if (strcmp(sc->vars[i]->name, name) == 0)
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
         {
-            sc->vars[i]->type = VAR_NULL;
-            return;
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_NULL;
+                return;
+            }
         }
-
+    }
     Value *new_var = malloc(sizeof(Value));
     new_var->name = strdup(name);
     new_var->type = VAR_NULL;

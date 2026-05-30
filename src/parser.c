@@ -967,6 +967,9 @@
             case VAR_DICT:
                 dict_print(dict->entries[e].value->value.dict);
                 break;
+            case VAR_LIST:
+                list_print(dict->entries[e].value->value.list);
+                break;
 
             default:
                 printf("%g", dict->entries[e].value->value.num);
