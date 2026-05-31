@@ -4,6 +4,8 @@
 #include "native.h"
 #include "parser.h"
 #include "utils.h"
+#include "core.h"
+#include "input.h"
 
 
 extern char *input;
@@ -29,6 +31,10 @@ int main(int argc, char **argv)
     jumpBOM();
     forward();
     program();
+    if (function_exist("_draw")){
+        register_input();
+        run_game();
+    }
     free(input);
 
     return 0;

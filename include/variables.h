@@ -78,6 +78,7 @@ typedef struct Value
     } value;
 } Value;
 
+int function_exist(char *name);
 void assign_number_val(char *name, double val);
 void dict_set(Dict *dict, char *key, Value *val);
 Value dict_get(Dict *d, char *key);
