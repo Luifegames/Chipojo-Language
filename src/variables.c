@@ -47,6 +47,18 @@ Value clone_value(Value v)
     return copy;
 }
 
+int function_exist(char *name){
+    Scope *sc = &scope_stack[0];
+    for (int i = 0; i < sc->count; i++)
+    {
+        if (strcmp(sc->vars[i]->name, name) == 0 && sc->vars[i]->type == VAR_FUNCTION){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
 void list_push(List *list, Value val)
 {
     if (list->count >= list->capacity)

@@ -56,11 +56,10 @@ static NativeFunctions natives[] = {
     {"show", native_print},
     {"abs", native_abs},
     {"window", native_window},
-    {"should_close", native_should_close},
-    {"begin_draw", native_begin_draw},
-    {"end_draw", native_end_draw},
-    {"clear", native_clear},
     {"draw_text", native_draw_text},
+    {"draw_circle", native_draw_circle},
+    {"draw_rect", native_draw_rect},
+    {"key_pressed",key_down_native},
     {NULL, NULL}};
 
 void register_natives()

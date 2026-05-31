@@ -2,6 +2,7 @@
 #define NATIVE_H
 #include "variables.h"
 #include "graphics.h"
+#include "input.h"
 
 
 typedef struct
@@ -12,6 +13,6 @@ typedef struct
 
 
 Value native_print(Value *args, int arg_count, int line);
-
+void register_natives();
 
 #endif

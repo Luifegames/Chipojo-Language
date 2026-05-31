@@ -928,27 +928,30 @@
 
     Value function_call(Value func_val, Value *args_v, int count, int last_index)
     {
-        push_scope();
-            if (count < func_val.value.func.param_count)
-            {
-                syntax_error_line("Few params in function",current_token.line);
-            }
-            else if (count > func_val.value.func.param_count)
-            {
-                syntax_error_line("Too much params in function", current_token.line);
-            }
+        if (strcmp(func_val.name,"_init") != 0)
+            push_scope();
 
-            for (int x = 0; x < count; x++)
-            {
-                variable_set(func_val.value.func.param[x], args_v[x]);
-            }
-            indx = func_val.value.func.start;
-            forward(); // Update position on first token in function
-            Value ret_val = block();
-            indx = last_index;
-            forward();
+        if (count < func_val.value.func.param_count)
+        {
+            syntax_error_line("Few params in function",current_token.line);
+        }
+        else if (count > func_val.value.func.param_count)
+        {
+            syntax_error_line("Too much params in function", current_token.line);
+        }
+
+        for (int x = 0; x < count; x++)
+        {
+            variable_set(func_val.value.func.param[x], args_v[x]);
+        }
+        indx = func_val.value.func.start;
+        forward(); // Update position on first token in function
+        Value ret_val = block();
+        indx = last_index;
+        forward();
+        if (strcmp(func_val.name, "_init") != 0)
             pop_scope();
-            return ret_val;
+        return ret_val;
     }
 
     void dict_print(Dict *dict){
