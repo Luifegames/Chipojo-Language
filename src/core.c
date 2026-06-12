@@ -6,7 +6,7 @@
 
 void run_game(){
     if (function_exist("_init")){
-        Value init = var_value_get("_init");
+        Value init = get_var_value("_init");
         Value args[0];
 
         function_call(init,args,0,indx);
@@ -18,7 +18,7 @@ void run_game(){
         
         if (function_exist("_update"))
         {
-            Value init = var_value_get("_update");
+            Value init = get_var_value("_update");
             Value args[1];
             args[0].type = VAR_NUMBER;
             args[0].value.num = dt;
@@ -32,7 +32,7 @@ void run_game(){
 
         if (function_exist("_draw"))
         {
-            Value init = var_value_get("_draw");
+            Value init = get_var_value("_draw");
             Value args[0];
             function_call(init, args, 0, indx);
         }
