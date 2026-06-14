@@ -86,13 +86,13 @@ const char *token_to_string(TokenType type)
 }
 
 void syntax_error_line(const char *message, int line){
-    printf("Lizard Error in line %d : %s \n", line, message);
+    printf("Chipojo Error in line %d : %s \n", line, message);
     exit(1);
 }
 
     void syntax_error(const char *message, Token token)
 {
-    printf("Lizard Error in line %d : %s. Found %s",token.line, message, token_to_string(token.type));
+    printf("Chipojo Error in line %d : %s. Found %s",token.line, message, token_to_string(token.type));
     if (token.type == TOKEN_ID)
     {
         printf(" ('%s')", token.name);
@@ -120,12 +120,12 @@ void runtime_error(const char *message)
 
 void undefined_variable_error(const char *var_name,int line)
 {
-    printf("Lizard Error in line %d : '%s' Undefined value in this scope",line, var_name);
+    printf("Chipojo Error in line %d : '%s' Undefined value in this scope",line, var_name);
     exit(1);
 }
 
 void type_error(const char *var_name, const char *expected, const char *found, int line)
 {
-    printf("Lizard Error in line %d : variable '%s' is type %s, expected %s\n",line, var_name, found, expected);
+    printf("Chipojo Error in line %d : variable '%s' is type %s, expected %s\n",line, var_name, found, expected);
     exit(1);
 }

@@ -1,4 +1,4 @@
-#include "lizard.h"
+#include "chipojo.h"
 #include "io.h"
 #include "lexer.h"
 #include "native.h"
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        printf("Use: %s archive.lzd\n", argv[0]);
+        printf("Use: %s archive.chp\n", argv[0]);
         return 1;
     }
     

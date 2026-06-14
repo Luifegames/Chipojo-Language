@@ -1,8 +1,8 @@
-# 🦎 Lizard Language
+# 🦎 Chipojo Language
 <div align="center">
-<img src="https://github.com/Luifegames/Lizard-Language/blob/74f78dcaae82aeed552b0b00ab53031f4293c24a/icon.svg" alt="Logo Lizard Language" width="250" />
+<img src="https://github.com/Luifegames/Chipojo-Language/blob/74f78dcaae82aeed552b0b00ab53031f4293c24a/icon.svg" alt="Logo Chipojo Language" width="250" />
 </div>
-**Lizard** is a small, C‑based interpreted language designed for learning and experimentation.
+**Chipojo** is a small, C‑based interpreted language designed for learning and experimentation.
 
 ## Features
 
@@ -18,37 +18,37 @@
 - **List** – [v1,v2,v3]  
 - **Dictionaries** – `{key:value}
 - **Functions** – user‑defined with func, parameters, return, and recursion
-- **File extension** – `.lzd`  
-- **Version** – `Lizard -v` shows ASCII art
+- **File extension** – `.chp`  
+- **Version** – `Chipojo -v` shows ASCII art
 
 ## Building
 
 Clone the repository and compile with `make`:
 
 ```bash
-git clone https://github.com/Luifegames/Lizard-Language.git
-cd lizard
+git clone https://github.com/Luifegames/Chipojo-Language.git
+cd chipojo
 make
 ```
-The executable lizard (or Lizard.exe on Windows) will be created.
+The executable chipojo (or Chipojo.exe on Windows) will be created.
 
 ## Usage
 Run an Lizaes script:
 
 ```bash
-./lizard script.lzd
+./chipojo script.chp
 ```
 Show version:
 
 ```bash
-./lizard -v
+./chipojo -v
 ```
 
 ## Example
-Create a file hello.lzd:
+Create a file hello.chp:
 
-```Lizard
-name = "Lizard"
+```Chipojo
+name = "Chipojo"
 size = 10
 
 if (size >= 10) {
@@ -63,29 +63,29 @@ show("5 > 3 is " + (5 > 3))
 Run it:
 
 ```bash
-./lizard hello.lzd
+./chipojo hello.chp
 ```
 
 Output:
 
 ```text
-Welcome to Lizard!
+Welcome to Chipojo!
 2 + 2 = 4
 5 > 3 is 1
 ```
 
 ## UTF‑8 Support
-Lizard reads .lzd files in binary mode and preserves UTF‑8 byte sequences inside string literals. To display accented characters (á, é, í, ó, ú, ñ) correctly:
+Chipojo reads .chp files in binary mode and preserves UTF‑8 byte sequences inside string literals. To display accented characters (á, é, í, ó, ú, ñ) correctly:
 
 ## Project Structure
 ```text
-Lizard/
+Chipojo/
 ├── Makefile
 ├── include/          
 │   ├── error.h
 │   ├── io.h
 │   ├── lexer.h
-│   ├── lizard.h
+│   ├── chipojo.h
 │   ├── methods.h
 │   ├── natives.h
 │   ├── parser.h
@@ -105,9 +105,9 @@ Lizard/
 ```
 
 
-## Installation Lizard Language for VS Code
+## Installation Chipojo Language for VS Code
 
-1. Download the latest `.vsix` file from the [Plugin](https://github.com/Luifegames/lizard-language-vscode/releases/tag/v0.0.1) page of this repository.
+1. Download the latest `.vsix` file from the [Plugin](https://github.com/Luifegames/chipojo-language-vscode/releases/tag/v0.0.1) page of this repository.
 
 2. Open **VS Code**.
 
@@ -123,17 +123,17 @@ Lizard/
 
 ## Usage
 
-Once installed, the extension automatically activates when you open a `.lzd` file.
+Once installed, the extension automatically activates when you open a `.chp` file.
 
 - Keywords (`if`, `else`, `while`, `show`, `and`, `or`, `not`) will have syntax highlighting.
 - Strings, numbers, comments, and operators are also highlighted.
 
 ## Example
 
-Open a file named `hello.lzd`:
+Open a file named `hello.chp`:
 
-```lizard
-name = "Lizard"
+```chipojo
+name = "Chipojo"
 size = 10
 
 if (size >= 10) {
@@ -147,11 +147,11 @@ show("5 > 3 is " + (5 > 3))
 ```
 
 ## Dictionaries
-Lizard supports dictionaries (hash maps) that store key‑value pairs. Keys must be strings, values can be any type (numbers, strings, nested dictionaries, etc.).
+Chipojo supports dictionaries (hash maps) that store key‑value pairs. Keys must be strings, values can be any type (numbers, strings, nested dictionaries, etc.).
 
 ### Creating a dictionary
 
-```lizard
+```chipojo
 empty = {}
 person = {"name": "Alice", "age": 30, "active": true}
 ```
@@ -159,13 +159,13 @@ person = {"name": "Alice", "age": 30, "active": true}
 ### Accessing and modifying values
 Use dot notation to read or assign values:
 
-```lizard
+```chipojo
 show(person.name)   // "Alice"
 person.age = 31      // update existing key
 person.city = "Paris" // add new key-value pair
 ```
 
-```lizard
+```chipojo
 if person.has("age") {
     show("Age: " + person.age)
 }
@@ -174,7 +174,7 @@ if person.has("age") {
 
 show(dict) displays the dictionary in a compact format:
 
-```lizard
+```chipojo
 show(person)   // {name:Alice,age:31,active:true,city:Paris}
 ```
 
@@ -184,10 +184,10 @@ Accessing a non‑existent key returns null.
 
 ## Lists
 
-Lizard supports dynamic lists with built-in methods.
+Chipojo supports dynamic lists with built-in methods.
 
 ### Creating Lists
-```lizard
+```chipojo
 numbers = [1, 2, 3]
 
 names = ["Luis", "Ana", "Carlos"]
@@ -196,7 +196,7 @@ mixed = [1, "hello", null]
 ```
 
 ### Access Elements
-```lizard
+```chipojo
 numbers = [10, 20, 30]
 
 show(numbers[0]) // 10
@@ -214,7 +214,7 @@ show(matrix[1][0]) // 3
 - **size()**
 
 Returns the amount of elements in the list.
-```lizard
+```chipojo
 numbers = [1, 2, 3]
 
 show(numbers.size()) // 3
@@ -223,7 +223,7 @@ show(numbers.size()) // 3
 - **get(index)**
 
 Returns the element at the specified index.
-```lizard
+```chipojo
 numbers = [10, 20, 30]
 
 show(numbers.get(2)) // 30
@@ -231,7 +231,7 @@ show(numbers.get(2)) // 30
 - **push(value)**
 
 Adds a new element to the end of the list.
-```lizard
+```chipojo
 numbers = [1, 2]
 
 numbers.push(3)
@@ -242,7 +242,7 @@ show(numbers) // [1, 2, 3]
 - **pop()**
 
 Removes and returns the last element.
-```lizard
+```chipojo
 numbers = [1, 2, 3]
 
 value = numbers.pop()
@@ -255,7 +255,7 @@ show(numbers) // [1, 2]
 - **is_empty()**
 
 Returns true if the list is empty.
-```lizard
+```chipojo
 numbers = []
 
 show(numbers.is_empty()) // true
@@ -264,7 +264,7 @@ show(numbers.is_empty()) // true
 - **insert(index,value)**
 
 Insert a value inside the list.
-```lizard
+```chipojo
 nums = [1,2,3]
 
 nums.insert(1, 99)
@@ -273,7 +273,7 @@ show(nums) // [1,99,2,3]
 ```
 - **remove(index)**
 Remove a value of the list
-```lizard
+```chipojo
 nums = [10,20,30]
 
 nums.remove(1)
@@ -283,7 +283,7 @@ show(nums) //[10,30]
 - **contains(value)**
 
 Returns true if the value exists in the list.
-```lizard
+```chipojo
 nums = [1, 2, 3]
 
 show(nums.contains(2)) // 1
@@ -291,7 +291,7 @@ show(nums.contains(2)) // 1
 - **find(value)**
 
 Returns the index of the value inside the list.
-```lizard
+```chipojo
 nums = [10, 20, 30]
 
 show(nums.find(20)) // 1
@@ -299,7 +299,7 @@ show(nums.find(20)) // 1
 - **reverse()**
 
 Reverses the list in place.
-```lizard
+```chipojo
 nums = [1, 2, 3]
 
 nums.reverse()
@@ -309,21 +309,21 @@ show(nums) // [3, 2, 1]
 
 ## Functions
 
-Lizard allows you to define reusable functions with parameters and return values. Functions are declared using the keyword func, followed by the name, parameters in parentheses, and the body enclosed in braces { }. A function can return a value using return.
+Chipojo allows you to define reusable functions with parameters and return values. Functions are declared using the keyword func, followed by the name, parameters in parentheses, and the body enclosed in braces { }. A function can return a value using return.
 
 Declaration
-```lizard
+```chipojo
 func name(parameter1, parameter2, ...) {
     // function body
     return expression
 }
 ```
 Calling a function
-```lizard
+```chipojo
 variable = name(argument1, argument2, ...)
 ```
 Recursive Example: Fibonacci
-```lizard
+```chipojo
 func fib(n) {
     if n <= 1 {
         return n

@@ -1,5 +1,5 @@
-#ifndef LIZARD_H
-#define LIZARD_H
+#ifndef CHIPOJO_H
+#define CHIPOJO_H
 
 #include <stdio.h>
 #include <stdlib.h>

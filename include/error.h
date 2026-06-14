@@ -1,7 +1,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "lizard.h"
+#include "chipojo.h"
 
 const char *expected_string(TokenType type);
 void syntax_error(const char *message, Token token);

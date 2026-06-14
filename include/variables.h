@@ -1,7 +1,7 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-#include "lizard.h"
+#include "chipojo.h"
 #include "error.h"
 
 #define MAX_SCOPE 1000

@@ -4,7 +4,7 @@ CFLAGS = -Wall -Iinclude -g
 SRC_DIR = src
 INC_DIR = include
 OBJ_DIR = obj
-BIN = lizard
+BIN = chipojo
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))

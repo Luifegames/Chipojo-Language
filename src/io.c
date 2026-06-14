@@ -1,13 +1,13 @@
 #include "io.h"
-#include "lizard.h"
+#include "chipojo.h"
 
 void get_file_contents(const char *filepath){
 
 
 char *ext = strrchr(filepath, '.');
-if (!ext || strcmp(ext, ".lzd") != 0)
+if (!ext || strcmp(ext, ".chp") != 0)
 {
-    printf("Error: not found file .lzd\n");
+    printf("Error: not found file .chp\n");
     exit(1);
 }
 

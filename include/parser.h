@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "lizard.h"
+#include "chipojo.h"
 #include "variables.h"
 
 void forward();

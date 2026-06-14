@@ -1,7 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "lizard.h"
+#include "chipojo.h"
 #include "error.h"
 
 
