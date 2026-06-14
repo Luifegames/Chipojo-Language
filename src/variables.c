@@ -5,6 +5,19 @@
 Scope scope_stack[MAX_SCOPE];
 int scope_depth = 0;
 
+int function_exist(char *name)
+{
+    Scope *sc = &scope_stack[0];
+    for (int i = 0; i < sc->count; i++)
+    {
+        if (strcmp(sc->vars[i]->name, name) == 0 && sc->vars[i]->type == VAR_FUNCTION)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 Value clone_value(Value v)
 {
     Value copy = {0};
@@ -47,100 +60,7 @@ Value clone_value(Value v)
     return copy;
 }
 
-void list_push(List *list, Value val)
-{
-    if (list->count >= list->capacity)
-    {
-        list->capacity *= 2;
-        list->items = realloc(list->items, sizeof(Value) * list->capacity);
-    }
-
-    list->items[list->count++] = clone_value(val);
-}
-
-void dict_new(char *name, Dict *dict){
-
-    Scope *sc;
-    for (int d = 0; d <= scope_depth; d++)
-    {
-        sc = &scope_stack[d];
-        for (int i = 0; i < sc->count; i++)
-        {
-            if (strcmp(sc->vars[i]->name, name) == 0)
-            {
-            sc->vars[i]->type = VAR_DICT;
-            sc->vars[i]->value.dict = dict;
-
-                return;
-            }
-        }
-    }
-    Value *new_var = malloc(sizeof(Value));
-    new_var->name = strdup(name);
-    new_var->type = VAR_DICT;
-    new_var->value.dict = dict;
-    new_var->value.func.param = NULL;
-    new_var->value.func.param_count = 0;
-
-    sc->vars[sc->count++] = new_var;
-}
-
-void list_new(char *name, List *list)
-{
-
-    Scope *sc;
-    for (int d = 0; d <= scope_depth; d++)
-    {
-        sc = &scope_stack[d];
-        for (int i = 0; i < sc->count; i++)
-        {
-            if (strcmp(sc->vars[i]->name, name) == 0)
-            {
-                sc->vars[i]->type = VAR_LIST;
-                sc->vars[i]->value.list = list;
-                return;
-            }
-        }
-    }
-
-    Value *new_var = malloc(sizeof(Value));
-
-    new_var->name = strdup(name);
-    new_var->type = VAR_LIST;
-    new_var->value.list = list;
-    new_var->value.func.param = NULL;
-    new_var->value.func.param_count = 0;
-
-    sc->vars[sc->count++] = new_var;
-}
-
-void dict_set(Dict *dict, char *key, Value *val){
-    
-    for (int i = 0; i < dict->count; i++)
-    {
-        if (strcmp(dict ->entries[i].key, key) == 0)
-        {
-            if (dict->entries[i].value->type == VAR_STRING)
-            {
-                free(dict->entries[i].value->value.str);
-            }
-            *(dict->entries[i].value) = clone_value(*val);
-
-            return;
-        }
-    }
-    
-    if (dict->count >= dict->capacity)
-    {
-        dict->capacity *= 2;
-        dict->entries = realloc(dict->entries, dict->capacity * sizeof(DictEntry));
-    }
-    dict->entries[dict->count].key = strdup(key);
-    dict->entries[dict->count].value = malloc(sizeof(Value));
-    *(dict->entries[dict->count++].value) = clone_value(*val);
-}
-
-Value dict_get(Dict *d, char *key)
+Value get_dict(Dict *d, char *key)
 {
     for (int i = 0; i < d->count; i++)
     {
@@ -154,115 +74,19 @@ Value dict_get(Dict *d, char *key)
     return null_val;
 }
 
-void assign_number_val(char *name, double num)
+Value *get_dict_ref(Dict *d, char *key)
 {
-    Scope *sc;
-    for (int d = 0; d <= scope_depth; d++)
+    for (int i = 0; i < d->count; i++)
     {
-        sc = &scope_stack[d];
-        for (int i = 0; i < sc->count; i++)
+        if (strcmp(d->entries[i].key, key) == 0)
         {
-            if (strcmp(sc->vars[i]->name, name) == 0)
-            {
-                sc->vars[i]->type = VAR_NUMBER;
-                sc->vars[i]->value.num = num;
-
-                return;
-            }
+            return d->entries[i].value;
         }
     }
-    Value *new_var = malloc(sizeof(Value));
-
-    new_var->name = strdup(name);
-    new_var->type = VAR_NUMBER;
-    new_var->value.num = num;
-
-    new_var->value.func.param = NULL;
-    new_var->value.func.param_count = 0;
-
-    sc->vars[sc->count++] = new_var;
+    return NULL;
 }
 
-void assign_string_val(char *name, char *str_value)
-{
-    Scope *sc;
-    for (int d = 0; d <= scope_depth; d++)
-    {
-        sc = &scope_stack[d];
-        for (int i = 0; i < sc->count; i++)
-        {
-            if (strcmp(sc->vars[i]->name, name) == 0)
-            {
-                sc->vars[i]->type = VAR_STRING;
-                free(sc->vars[i]->value.str);
-                sc->vars[i]->value.str = strdup(str_value);
-                return;
-            }
-        }
-    }
-
-    Value *new_var = malloc(sizeof(Value));
-
-    new_var->name = strdup(name);
-    new_var->type = VAR_STRING;
-    new_var->value.str = strdup(str_value);
-
-    new_var->value.func.param = NULL;
-    new_var->value.func.param_count = 0;
-
-    sc->vars[sc->count++] = new_var;
-
-}
-
-void define_function(char *name, int start,char **params, int param_count)
-{
-    Scope *sc = &scope_stack[scope_depth];
-    for (int i = 0; i < sc->count; i++)
-        if (strcmp(sc->vars[i]->name, name) == 0)
-        {
-            char error[256];
-            snprintf(error, sizeof(error), "Function %s is defined twice", name);
-            syntax_error_line(error, current_token.line);
-            exit(1);
-        }
-
-    Value *new_var = malloc(sizeof(Value));
-    new_var->name = strdup(name);
-    new_var->type = VAR_FUNCTION;
-    new_var->value.func.start = start;
-
-    new_var->value.func.param = malloc(param_count * sizeof(char *));
-    for (int i = 0; i < param_count; i++)
-        new_var->value.func.param[i] = strdup(params[i]);
-
-    new_var->value.func.param_count = param_count;
-    sc->vars[sc->count++] = new_var;
-
-}
-
-void assign_null_val(char *name)
-{
-
-    Scope *sc;
-    for (int d = 0; d <= scope_depth; d++)
-    {
-        sc = &scope_stack[d];
-        for (int i = 0; i < sc->count; i++)
-        {
-            if (strcmp(sc->vars[i]->name, name) == 0)
-            {
-                sc->vars[i]->type = VAR_NULL;
-                return;
-            }
-        }
-    }
-    Value *new_var = malloc(sizeof(Value));
-    new_var->name = strdup(name);
-    new_var->type = VAR_NULL;
-    sc->vars[sc->count++] = new_var;
-    }
-
-Value var_value_get(char *name)
+Value get_var_value(char *name)
 {
     Value v = {0};
     for (int d = scope_depth; d >= 0; d--)
@@ -301,9 +125,10 @@ Value var_value_get(char *name)
                 {
                     v.value.native_func = sc->vars[i]->value.native_func;
                 }
-                else{
+                else
+                {
                     char message[64];
-                    printf("%s\n",v.name);
+                    printf("%s\n", v.name);
                     sprintf(message, "Can't get this variable, var type %d", v.type);
                     runtime_error(message);
                 }
@@ -314,7 +139,238 @@ Value var_value_get(char *name)
     return v;
 }
 
-void variable_set(char *name, Value value){
+Value *get_var_value_ref(char *name)
+{
+    for (int d = scope_depth; d >= 0; d--)
+    {
+        Scope *sc = &scope_stack[d];
+
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                return sc->vars[i];
+            }
+        }
+    }
+
+    return NULL;
+}
+
+Value get_list(List *list, int index)
+{
+
+    if (index < 0 || index >= list->count)
+    {
+        runtime_error("List index out of range");
+    }
+
+    return clone_value(list->items[index]);
+}
+
+void assign_number_val(char *name, double num)
+{
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_NUMBER;
+                sc->vars[i]->value.num = num;
+
+                return;
+            }
+        }
+    }
+    Value *new_var = malloc(sizeof(Value));
+
+    new_var->name = strdup(name);
+    new_var->type = VAR_NUMBER;
+    new_var->value.num = num;
+
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
+
+    sc->vars[sc->count++] = new_var;
+}
+
+void assign_null_val(char *name)
+{
+
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_NULL;
+                return;
+            }
+        }
+    }
+    Value *new_var = malloc(sizeof(Value));
+    new_var->name = strdup(name);
+    new_var->type = VAR_NULL;
+    sc->vars[sc->count++] = new_var;
+}
+
+void assign_string_val(char *name, char *str_value)
+{
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_STRING;
+                free(sc->vars[i]->value.str);
+                sc->vars[i]->value.str = strdup(str_value);
+                return;
+            }
+        }
+    }
+
+    Value *new_var = malloc(sizeof(Value));
+
+    new_var->name = strdup(name);
+    new_var->type = VAR_STRING;
+    new_var->value.str = strdup(str_value);
+
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
+
+    sc->vars[sc->count++] = new_var;
+}
+
+void assign_dict_val(char *name, Dict *dict)
+{
+
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_DICT;
+                sc->vars[i]->value.dict = dict;
+
+                return;
+            }
+        }
+    }
+    Value *new_var = malloc(sizeof(Value));
+    new_var->name = strdup(name);
+    new_var->type = VAR_DICT;
+    new_var->value.dict = dict;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
+
+    sc->vars[sc->count++] = new_var;
+}
+
+void assign_list_val(char *name, List *list)
+{
+
+    Scope *sc;
+    for (int d = 0; d <= scope_depth; d++)
+    {
+        sc = &scope_stack[d];
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                sc->vars[i]->type = VAR_LIST;
+                sc->vars[i]->value.list = list;
+                return;
+            }
+        }
+    }
+
+    Value *new_var = malloc(sizeof(Value));
+
+    new_var->name = strdup(name);
+    new_var->type = VAR_LIST;
+    new_var->value.list = list;
+    new_var->value.func.param = NULL;
+    new_var->value.func.param_count = 0;
+
+    sc->vars[sc->count++] = new_var;
+}
+
+void set_dict(Dict *dict, char *key, Value *val)
+{
+
+    for (int i = 0; i < dict->count; i++)
+    {
+        if (strcmp(dict->entries[i].key, key) == 0)
+        {
+            if (dict->entries[i].value->type == VAR_STRING)
+            {
+                free(dict->entries[i].value->value.str);
+            }
+            *(dict->entries[i].value) = clone_value(*val);
+
+            return;
+        }
+    }
+
+    if (dict->count >= dict->capacity)
+    {
+        dict->capacity *= 2;
+        dict->entries = realloc(dict->entries, dict->capacity * sizeof(DictEntry));
+    }
+    dict->entries[dict->count].key = strdup(key);
+    dict->entries[dict->count].value = malloc(sizeof(Value));
+    *(dict->entries[dict->count++].value) = clone_value(*val);
+}
+
+void push_list(List *list, Value val)
+{
+    if (list->count >= list->capacity)
+    {
+        list->capacity *= 2;
+        list->items = realloc(list->items, sizeof(Value) * list->capacity);
+    }
+
+    list->items[list->count++] = clone_value(val);
+}
+
+void define_function(char *name, int start,char **params, int param_count)
+{
+    Scope *sc = &scope_stack[scope_depth];
+    for (int i = 0; i < sc->count; i++)
+        if (strcmp(sc->vars[i]->name, name) == 0)
+        {
+            char error[256];
+            snprintf(error, sizeof(error), "Function %s is defined twice", name);
+            syntax_error_line(error, current_token.line);
+            exit(1);
+        }
+
+    Value *new_var = malloc(sizeof(Value));
+    new_var->name = strdup(name);
+    new_var->type = VAR_FUNCTION;
+    new_var->value.func.start = start;
+
+    new_var->value.func.param = malloc(param_count * sizeof(char *));
+    for (int i = 0; i < param_count; i++)
+        new_var->value.func.param[i] = strdup(params[i]);
+
+    new_var->value.func.param_count = param_count;
+    sc->vars[sc->count++] = new_var;
+
+}
+
+void set_variable(char *name, Value value){
     
     if (value.type == VAR_STRING)
     {
@@ -330,11 +386,11 @@ void variable_set(char *name, Value value){
     }
     else if (value.type == VAR_DICT)
     {
-        dict_new(name, value.value.dict);
+         assign_dict_val(name, value.value.dict);
     }
     else if (value.type == VAR_LIST)
     {
-        list_new(name, value.value.list);
+         assign_list_val(name, value.value.list);
     }
     else if (value.type == VAR_NATIVE)
     {
@@ -349,19 +405,6 @@ void variable_set(char *name, Value value){
     else{
         undefined_variable_error(name, current_token.line);
     }
-}
-
-
-
-
-
-Value list_get(List *list, int index){
-
-    if (index < 0 || index >= list->count){
-        runtime_error("List index out of range");
-    }
-
-    return clone_value(list->items[index]);
 }
 
 void push_scope(){

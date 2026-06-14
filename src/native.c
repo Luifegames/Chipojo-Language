@@ -13,11 +13,11 @@ Value native_print(Value *args, int arg_count, int line)
             printf("null");
         else if (args[i].type == VAR_DICT)
         {
-            dict_print(args[i].value.dict);
+            print_dict(args[i].value.dict);
         }
         else if (args[i].type == VAR_LIST)
         {
-            list_print(args[i].value.list);
+            print_list(args[i].value.list);
         }
         if (i < arg_count - 1)
             printf(" ");
@@ -55,6 +55,11 @@ Value native_abs(Value *args, int arg_count, int line)
 static NativeFunctions natives[] = {
     {"show", native_print},
     {"abs", native_abs},
+    {"window", native_window},
+    {"draw_text", native_draw_text},
+    {"draw_circle", native_draw_circle},
+    {"draw_rect", native_draw_rect},
+    {"key_pressed",key_down_native},
     {NULL, NULL}};
 
 void register_natives()
@@ -64,6 +69,6 @@ void register_natives()
         Value v = {0};
         v.type = VAR_NATIVE;
         v.value.native_func = natives[i].func;
-        variable_set(natives[i].name, v);
+        set_variable(natives[i].name, v);
     }
 }

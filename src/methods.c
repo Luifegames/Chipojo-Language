@@ -92,13 +92,13 @@ Value dict_has(Value *args, int arg_count, int line)
     Value result = {0};
     result.type = VAR_NUMBER;
     result.value.num = 0;
-    Value dict_val = dict_get(self.value.dict, key);
+    Value dict_val = get_dict(self.value.dict, key);
     if (dict_val.type != VAR_NULL)
         result.value.num = 1;
     return result;
 }
 
-Value dict_getter(Value *args, int arg_count, int line)
+Value get_dictter(Value *args, int arg_count, int line)
 {
     if (arg_count != 2)
     {
@@ -112,11 +112,11 @@ Value dict_getter(Value *args, int arg_count, int line)
 
     Value self = args[0];
     char *key = args[1].value.str;
-    Value result = dict_get(self.value.dict, key);
+    Value result = get_dict(self.value.dict, key);
     return result;
 }
 
-Value dict_setter(Value *args, int arg_count, int line)
+Value set_dictter(Value *args, int arg_count, int line)
 {
     if (arg_count != 3)
     {
@@ -131,12 +131,12 @@ Value dict_setter(Value *args, int arg_count, int line)
     Value self = args[0];
     char *key = args[1].value.str;
     Value *val = &args[2];
-    dict_set(self.value.dict, key,val);
-    Value result = dict_get(self.value.dict, key);
+    set_dict(self.value.dict, key,val);
+    Value result = get_dict(self.value.dict, key);
     return result;
 }
 
-Value list_getter(Value *args, int arg_count, int line)
+Value get_listter(Value *args, int arg_count, int line)
 {
     if (arg_count != 2)
     {
@@ -150,7 +150,7 @@ Value list_getter(Value *args, int arg_count, int line)
 
     Value self = args[0];
     int index = args[1].value.num;
-    Value result = list_get(self.value.list, index);
+    Value result = get_list(self.value.list, index);
     return result;
 }
 
@@ -161,7 +161,7 @@ Value list_add(Value *args, int arg_count, int line)
         runtime_error("push() takes 1 arg");
     }
     Value object = args[0];
-    list_push(object.value.list, args[1]);
+    push_list(object.value.list, args[1]);
 
     Value nullv = {0};
     nullv.type = VAR_NULL;
@@ -410,13 +410,13 @@ MethodEntry string_methods[] = {
 MethodEntry dict_methods[] = {
     {"size", size_get},
     {"has", dict_has},
-    {"get", dict_getter},
-    {"set", dict_setter},
+    {"get", get_dictter},
+    {"set", set_dictter},
     {NULL, NULL}};
 
 MethodEntry list_methods[] = {
     {"size", size_get},
-    {"get", list_getter},
+    {"get", get_listter},
     {"push", list_add},
     {"pop", list_pop},
     {"is_empty", list_is_empty},

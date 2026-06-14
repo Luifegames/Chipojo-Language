@@ -6,7 +6,7 @@
 
 #define MAX_SCOPE 1000
 
-typedef struct Value Value; // Declaración forward
+typedef struct Value Value; 
 typedef Value (*NativeFunction)(Value *args, int arg_count, int line);
 
 // Variables
@@ -78,20 +78,24 @@ typedef struct Value
     } value;
 } Value;
 
-void assign_number_val(char *name, double val);
-void dict_set(Dict *dict, char *key, Value *val);
-Value dict_get(Dict *d, char *key);
-void list_push(List *list, Value val);
-void dict_new(char *name, Dict *dict);
-void list_new(char *name, List *list);
-void assign_string_val(char *name, char *val);
-void define_function(char *name, int start,char** params,int param_count);
-void assign_null_val(char *name);
-Value var_value_get(char *name);
-// Value getFunction(char *name);
-Value list_get(List *list, int index);
+int function_exist(char *name);
 Value clone_value(Value v);
-void variable_set(char *name, Value value);
+Value get_dict(Dict *d, char *key);
+Value *get_dict_ref(Dict *d, char *key);
+Value get_var_value(char *name);
+Value *get_var_value_ref(char *name);
+Value get_list(List *list, int index);
+
+void assign_number_val(char *name, double val);
+void assign_null_val(char *name);
+void assign_string_val(char *name, char *val);
+void assign_dict_val(char *name, Dict *dict);
+void assign_list_val(char *name, List *list);
+
+void set_dict(Dict *dict, char *key, Value *val);
+void push_list(List *list, Value val);
+void define_function(char *name, int start,char** params,int param_count);
+void set_variable(char *name, Value value);
 void push_scope();
 void pop_scope();
 

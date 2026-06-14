@@ -1,6 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Iinclude -g
 
+LIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
+
 SRC_DIR = src
 INC_DIR = include
 OBJ_DIR = obj
@@ -18,7 +20,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(BIN): $(OBJS)
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ $(LIBS)
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN)
