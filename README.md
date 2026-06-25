@@ -187,7 +187,19 @@ La extensión **Chipojo Language** (`vscode-extension/`) aporta:
 - Tema de iconos Sybo (archivos `.chp` con icono personalizado)
 - Configuración de lenguaje (bracket matching, auto-cierre, comentarios)
 
-Instálalo desde el `.vsix` generado en `vscode-extension/` o desde el marketplace de VS Code.
+### Instalación
+
+```bash
+# Desde VS Code:
+# 1. Extensiones (Ctrl+Shift+X) → ... → Install from VSIX...
+# 2. Selecciona vscode-extension/chipojo-language-0.3.0.vsix
+
+# O desde terminal:
+code --install-extension vscode-extension/chipojo-language-0.3.0.vsix
+```
+
+> [!TIP]
+> El `.vsix` ya está empaquetado en `vscode-extension/`. Solo impórtalo y ya.
 
 ## Módulos y Closures
 
