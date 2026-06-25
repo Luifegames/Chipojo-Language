@@ -1,5 +1,5 @@
 <div align="center">
-<img src="assets/icon.svg" alt="Logo Chipojo Language" width="250" />
+<img src="assets/banner.png" alt="Logo Chipojo Language" width="450" />
 </div>
 
 **Chipojo** es un lenguaje de programación interpretado, pequeño y escrito en C, diseñado para aprender y experimentar.
@@ -55,6 +55,7 @@ El ejecutable `chipojo` se genera en la raíz del proyecto.
 
 > [!TIP]
 > Para usar `chipojo` desde cualquier terminal, agrega la carpeta al `PATH`:
+>
 > ```bash
 > echo 'export PATH=$PATH:'$(pwd) >> ~/.bashrc
 > source ~/.bashrc
