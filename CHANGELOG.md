@@ -26,7 +26,19 @@
 - Documented admin-only publishing: users create `@username/module`, then a chpm admin uploads it to the official repository/database.
 - Updated VS Code grammar/snippets for dev keywords, named imports and scoped package examples.
 
+## Architecture
+
+- Chipojo-Language/ flattened to root: `src/`, `include/`, `lib/` at project root.
+- `chipojo-vscode/` moved to `extensions/vscode/`.
+- Shared `assets/` directory for icons and resources.
+- Spanish documentation moved to `docs/es/`.
+- Tests consolidated under `test/`.
+- Root `Makefile` builds interpreter and delegates to chpm.
+- CI/CD: `.github/workflows/ci.yml` builds and tests on push/PR.
+- `LICENSE` file added (MIT).
+- `.vscode/settings.json` with shared workspace config.
+- `Sybo` icon theme for VS Code file icons.
+
 ## Notes
 
 - Exported functions do not capture private module variables yet. Generated package functions use literal package metadata until closures/module environments are implemented.
-- This workspace does not currently expose a valid Git repository, so the branch split above is documented for applying these changes to real `master` and `dev` branches.

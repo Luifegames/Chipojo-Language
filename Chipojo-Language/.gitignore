@@ -1,7 +1,0 @@
-*.o
-*.exe
-docs/
-chipojo
-*.chp
-!lib/*.chp
-

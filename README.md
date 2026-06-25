@@ -13,15 +13,15 @@
 
 | Component | Description | Location |
 |-----------|-------------|----------|
-| **Interpreter** | Single-pass tree-walk interpreter written in C | `Chipojo-Language/` |
+| **Interpreter** | Single-pass tree-walk interpreter written in C | `src/` + `include/` |
 | **Package Manager** | `chpm` – npm-like CLI for Chipojo packages | `chpm/` |
-| **VS Code Extension** | Syntax highlighting, snippets, icon theme | `chipojo-vscode/` |
+| **VS Code Extension** | Syntax highlighting, snippets, icon theme | `extensions/vscode/` |
 
 ## Quick Start
 
 ```bash
 # Build the interpreter
-cd Chipojo-Language && make
+make
 
 # Run a script
 ./chipojo script.chp
@@ -45,7 +45,7 @@ cd Chipojo-Language && make
 
 ### VS Code Extension
 
-Install `chipojo-language` v0.3.0+ from `chipojo-vscode/` for syntax highlighting, snippets, and icon theme support.
+Install `chipojo-language` v0.3.0+ from `extensions/vscode/` for syntax highlighting, snippets, and icon theme support.
 
 ### chpm (Package Manager)
 
@@ -59,21 +59,24 @@ chpm install math  # Install a package
 
 ```
 Chipojo/
-├── Chipojo-Language/     # Interpreter (C source)
-│   ├── src/              # Lexer, parser, evaluator, methods, variables
-│   ├── include/          # Header files
-│   ├── lib/              # Standard library (.chp modules)
-│   └── Makefile
+├── src/                  # Interpreter C source
+├── include/              # Interpreter C headers
+├── lib/                  # Standard library (.chp modules)
 ├── chpm/                 # Package manager (C source)
-│   ├── src/main.c        # All chpm commands
-│   └── packets_chpm_create/  # Built-in package repository
-├── chipojo-vscode/       # VS Code extension
+│   ├── src/              # chpm source files
+│   ├── include/          # chpm headers
+│   └── packets/          # Built-in package registry
+├── extensions/vscode/    # VS Code extension
 │   ├── syntaxes/         # TextMate grammar
 │   ├── snippets/         # Code snippets
 │   └── themes/           # Sybo icon theme
-├── examples/             # Example .chp programs
+├── assets/               # Shared resources (icons)
 ├── test/                 # Test suites
-└── docs/                 # Documentation
+├── examples/             # Example .chp programs
+├── docs/                 # Documentation
+│   └── es/               # Spanish docs
+├── .github/workflows/    # CI/CD
+└── Makefile              # Build all
 ```
 
 ## License

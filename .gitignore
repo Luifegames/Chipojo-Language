@@ -1,12 +1,23 @@
+# Binaries
+chipojo
+chpm
 *.o
 *.exe
 *.vsix
-chipojo
-chpm
-Chipojo-Language/chipojo
+
+# Build artifacts
+obj/
 Chipojo-Language/obj/
-chpm/chpm
+
+# IDE
 .vscode/
+
+# Chipojo packages
+chpm_modules/
+
+# Package manager registry
+~/packets_chpm_create/
+
+# Agent/Codex configs
 .agents/
 .codex/
-test 
