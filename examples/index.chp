@@ -1,0 +1,9 @@
+nombre = "Roberto"
+status = false
+if status{
+    show("Permiso para usar el sistema")
+}else{
+    show("Sin permisos para entrar al sistema")
+}
+
+show("Hi, " + nombre + " and  world from Chipojo")

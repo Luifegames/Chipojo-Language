@@ -1,0 +1,4 @@
+import minmod
+show(minmod.pi)
+values = [1, 2, 3]
+show(values.length)

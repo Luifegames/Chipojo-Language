@@ -1,0 +1,10 @@
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "main": "index.chp",
+  "dependencies": {
+    "math": "0.1.0"
+  }
+}

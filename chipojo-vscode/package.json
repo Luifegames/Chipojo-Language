@@ -1,0 +1,39 @@
+{
+  "name": "chipojo-language",
+  "displayName": "Chipojo Language",
+  "description": "Syntax highlighting, snippets and language support for Chipojo (.chp)",
+  "version": "0.2.0",
+  "publisher": "luife",
+  "license": "MIT",
+  "icon": "icon.svg",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "chipojo",
+        "aliases": ["Chipojo", "chipojo"],
+        "extensions": [".chp"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "chipojo",
+        "scopeName": "source.chipojo",
+        "path": "./syntaxes/chipojo.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "chipojo",
+        "path": "./snippets/chipojo.json"
+      }
+    ]
+  }
+}

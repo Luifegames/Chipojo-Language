@@ -1,0 +1,10 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "Demo project for Chipojo",
+  "main": "index.chp",
+  "dependencies": {
+    "math": "0.1.0",
+    "strings": "0.1.0"
+  }
+}

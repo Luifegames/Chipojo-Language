@@ -1,0 +1,6 @@
+import math
+from strings import hello
+
+show("Chipojo Demo")
+show("PI = " + math.pi)
+show(hello)

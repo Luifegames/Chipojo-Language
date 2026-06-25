@@ -1,0 +1,287 @@
+{
+  "If statement": {
+    "prefix": ["if", "if block"],
+    "body": "if ${1:condition} {\n\t${2:body}\n}",
+    "description": "If conditional"
+  },
+  "If-else statement": {
+    "prefix": ["ifelse"],
+    "body": "if ${1:condition} {\n\t${2:body}\n} else {\n\t${3:else_body}\n}",
+    "description": "If-else conditional"
+  },
+  "If-elif-else": {
+    "prefix": ["ifelif", "elif"],
+    "body": "if ${1:condition} {\n\t${2:body}\n} elif ${3:condition2} {\n\t${4:elif_body}\n} else {\n\t${5:else_body}\n}",
+    "description": "If with elif and else"
+  },
+  "While loop": {
+    "prefix": ["while", "loop", "mientras"],
+    "body": "while ${1:condition} {\n\t${2:body}\n}",
+    "description": "While loop"
+  },
+  "Switch statement": {
+    "prefix": ["switch"],
+    "body": "switch ${1:value} {\n\tcase ${2:match}: {\n\t\t${3:body}\n\t}\n\tdefault: {\n\t\t${4:default_body}\n\t}\n}",
+    "description": "Switch statement"
+  },
+  "Class": {
+    "prefix": ["class"],
+    "body": "class ${1:Name} {\n\tpublic func ${2:method}(${3:params}) {\n\t\t${4:body}\n\t}\n}",
+    "description": "Class with public method"
+  },
+  "Void method": {
+    "prefix": ["void"],
+    "body": "public void ${1:name}(${2:params}) {\n\t${3:body}\n}",
+    "description": "Void method"
+  },
+  "Try catch": {
+    "prefix": ["try", "catch"],
+    "body": "try {\n\t${1:body}\n} catch ${2:error} {\n\t${3:handler}\n}",
+    "description": "Try/catch block"
+  },
+  "Function": {
+    "prefix": ["func", "function"],
+    "body": "func ${1:name}($2) {\n\t${3:body}\n}",
+    "description": "Define function"
+  },
+  "Function with return": {
+    "prefix": ["funcreturn"],
+    "body": "func ${1:name}($2) {\n\t${3:body}\n\treturn ${4:value}\n}",
+    "description": "Define function with return"
+  },
+  "Show (print)": {
+    "prefix": ["show", "print"],
+    "body": "show(${1:value})",
+    "description": "Print value"
+  },
+  "List literal": {
+    "prefix": ["list"],
+    "body": "[${1:values}]",
+    "description": "Create list"
+  },
+  "Dict literal": {
+    "prefix": ["dict"],
+    "body": "{\"${1:key}\": ${2:value}}",
+    "description": "Create dictionary"
+  },
+  "Assignment": {
+    "prefix": ["let", "var"],
+    "body": "${1:name} = ${2:value}",
+    "description": "Assign variable"
+  },
+  "List push": {
+    "prefix": ["push"],
+    "body": "${1:list}.push(${2:value})",
+    "description": "Push to list"
+  },
+  "List pop": {
+    "prefix": ["pop"],
+    "body": "${1:list}.pop()",
+    "description": "Pop from list"
+  },
+  "List get": {
+    "prefix": ["lget"],
+    "body": "${1:list}.get(${2:index})",
+    "description": "Get from list"
+  },
+  "List contains": {
+    "prefix": ["contains"],
+    "body": "${1:list}.contains(${2:value})",
+    "description": "Check if list contains value"
+  },
+  "List insert": {
+    "prefix": ["insert"],
+    "body": "${1:list}.insert(${2:index}, ${3:value})",
+    "description": "Insert into list"
+  },
+  "List remove": {
+    "prefix": ["lremove"],
+    "body": "${1:list}.remove(${2:index})",
+    "description": "Remove from list"
+  },
+  "List reverse": {
+    "prefix": ["reverse"],
+    "body": "${1:list}.reverse()",
+    "description": "Reverse list"
+  },
+  "List is_empty": {
+    "prefix": ["is_empty"],
+    "body": "${1:list}.is_empty()",
+    "description": "Check if list is empty"
+  },
+  "List size": {
+    "prefix": ["lsize"],
+    "body": "${1:list}.size()",
+    "description": "List size"
+  },
+  "Dict has": {
+    "prefix": ["dhas"],
+    "body": "${1:dict}.has(\"${2:key}\")",
+    "description": "Dict has key"
+  },
+  "Dict get": {
+    "prefix": ["dget"],
+    "body": "${1:dict}.get(\"${2:key}\")",
+    "description": "Dict get by key"
+  },
+  "Dict set": {
+    "prefix": ["dset"],
+    "body": "${1:dict}.set(\"${2:key}\", ${3:value})",
+    "description": "Dict set key-value"
+  },
+  "Dict size": {
+    "prefix": ["dsize"],
+    "body": "${1:dict}.size()",
+    "description": "Dict size"
+  },
+  "String .length": {
+    "prefix": ["length", "strlen"],
+    "body": "${1:string}.length",
+    "description": "String length"
+  },
+  "String .upper": {
+    "prefix": ["upper"],
+    "body": "${1:string}.upper()",
+    "description": "String to uppercase"
+  },
+  "String .lower": {
+    "prefix": ["lower"],
+    "body": "${1:string}.lower()",
+    "description": "String to lowercase"
+  },
+  "Increment": {
+    "prefix": ["inc", "increment"],
+    "body": "${1:var}++",
+    "description": "Increment by 1"
+  },
+  "Decrement": {
+    "prefix": ["dec", "decrement"],
+    "body": "${1:var}--",
+    "description": "Decrement by 1"
+  },
+  "Compound add": {
+    "prefix": ["+=", "plusassign"],
+    "body": "${1:var} += ${2:value}",
+    "description": "Add and assign"
+  },
+  "Compound subtract": {
+    "prefix": ["-=", "minusassign"],
+    "body": "${1:var} -= ${2:value}",
+    "description": "Subtract and assign"
+  },
+  "Compound multiply": {
+    "prefix": ["*=", "multassign"],
+    "body": "${1:var} *= ${2:value}",
+    "description": "Multiply and assign"
+  },
+  "Compound divide": {
+    "prefix": ["/=", "divassign"],
+    "body": "${1:var} /= ${2:value}",
+    "description": "Divide and assign"
+  },
+  "Fibonacci example": {
+    "prefix": ["fib"],
+    "body": "func fib(n) {\n\tif n <= 1 {\n\t\treturn n\n\t} else {\n\t\treturn fib(n-1) + fib(n-2)\n\t}\n}",
+    "description": "Fibonacci function"
+  },
+  "Const declaration": {
+    "prefix": ["const"],
+    "body": "const ${1:name} = ${2:value}",
+    "description": "Constant declaration"
+  },
+  "Var declaration": {
+    "prefix": ["var"],
+    "body": "var ${1:name} = ${2:value}",
+    "description": "Variable declaration with var"
+  },
+  "Let declaration": {
+    "prefix": ["let"],
+    "body": "let ${1:name} = ${2:value}",
+    "description": "Variable declaration with let"
+  },
+  "Float declaration": {
+    "prefix": ["float"],
+    "body": "float ${1:name} = ${2:value}",
+    "description": "Float variable declaration"
+  },
+  "String declaration": {
+    "prefix": ["string", "str"],
+    "body": "string ${1:name} = \"${2:value}\"",
+    "description": "String variable declaration"
+  },
+  "Bool declaration": {
+    "prefix": ["bool"],
+    "body": "bool ${1:name} = ${2:value}",
+    "description": "Boolean variable declaration"
+  },
+  "Import module": {
+    "prefix": ["import"],
+    "body": "import ${1:module} from \"${1:module}\"",
+    "description": "Import module"
+  },
+  "From-import": {
+    "prefix": ["from"],
+    "body": "from ${1:module} import ${2:var1}${3:, ${4:var2}}",
+    "description": "Import specific values from module"
+  },
+  "Named import": {
+    "prefix": ["importnamed", "import{}"],
+    "body": "import { ${1:name} } from \"${2:module}\"",
+    "description": "Import named exports from a package"
+  },
+  "Named from-import": {
+    "prefix": ["fromnamed", "from{}"],
+    "body": "from \"${1:module}\" import { ${2:name} }",
+    "description": "Import named exports with braces"
+  },
+  "Arrow function": {
+    "prefix": ["arrow", "=>"],
+    "body": "(${1:params}) => ${2:body}",
+    "description": "Arrow function expression"
+  },
+  "Arrow function block": {
+    "prefix": ["arrowblock"],
+    "body": "(${1:params}) => {\n\t${2:body}\n}",
+    "description": "Arrow function with block body"
+  },
+  "Export const": {
+    "prefix": ["exportconst"],
+    "body": "export const ${1:name} = ${2:value}",
+    "description": "Export constant from module"
+  },
+  "Export func": {
+    "prefix": ["exportfunc"],
+    "body": "export func ${1:name}(${2:params}) {\n\t${3:body}\n}",
+    "description": "Export function from module"
+  },
+  "Export var": {
+    "prefix": ["exportvar", "export"],
+    "body": "export ${1:name} = ${2:value}",
+    "description": "Export variable from module"
+  },
+  "Import as": {
+    "prefix": ["importas"],
+    "body": "import ${1:module} as ${2:alias}",
+    "description": "Import module with alias"
+  },
+  "Import submodule": {
+    "prefix": ["importsub", "import."],
+    "body": "import ${2:sub} from \"${1:pkg}/${2:sub}\"",
+    "description": "Import submodule with slash path"
+  },
+  "From submodule": {
+    "prefix": ["fromsub", "from."],
+    "body": "from \"${1:pkg}/${2:sub}\" import ${3:var}",
+    "description": "Import from submodule"
+  },
+  "Import default": {
+    "prefix": ["importdefault"],
+    "body": "import ${2:module} from \"${1:module}\"",
+    "description": "Import default export from module"
+  },
+  "Export default": {
+    "prefix": ["exportdefault"],
+    "body": "export default ${1:value}",
+    "description": "Export default value from module"
+  }
+}
