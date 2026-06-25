@@ -19,7 +19,10 @@ void jumpBlankspace(void)
 }
 
 
-void skipLineComment(void){
+static void skipLineComment(void);
+static void skipBlockComment(void);
+
+static void skipLineComment(void){
     while (currentChar() != '\0' && currentChar() != '\n'){
         nextChar();
     }
@@ -84,9 +87,12 @@ Token nextToken()
     if (isalpha((unsigned char)c) || currentChar() == '_')
     {
         int i = 0;
-        while ((isalnum((unsigned char)currentChar()) || currentChar() =='_') && i < 63)
+        while (isalnum((unsigned char)currentChar()) || currentChar() == '_')
         {
-            t.name[i++] = currentChar();
+            if (i < 63)
+            {
+                t.name[i++] = currentChar();
+            }
             nextChar();
         }
         t.name[i] = '\0';
@@ -106,8 +112,10 @@ Token nextToken()
             t.type = TOKEN_FALSE;
         else if (strcmp(t.name, "null") == 0)
             t.type = TOKEN_NULL;
-        else if (strcmp(t.name, "func") == 0)
+        else if (strcmp(t.name, "func") == 0 || strcmp(t.name, "fn") == 0)
             t.type = TOKEN_FUNC;
+        else if (strcmp(t.name, "def") == 0)
+            t.type = TOKEN_DEF;
         else if (strcmp(t.name, "return") == 0)
             t.type = TOKEN_RETURN;
         else if (strcmp(t.name, "and") == 0)
@@ -116,6 +124,48 @@ Token nextToken()
             t.type = TOKEN_OR;
         else if (strcmp(t.name, "not") == 0)
             t.type = TOKEN_NOT;
+        else if (strcmp(t.name, "import") == 0)
+            t.type = TOKEN_IMPORT;
+        else if (strcmp(t.name, "from") == 0)
+            t.type = TOKEN_FROM;
+        else if (strcmp(t.name, "as") == 0)
+            t.type = TOKEN_AS;
+        else if (strcmp(t.name, "export") == 0)
+            t.type = TOKEN_EXPORT;
+        else if (strcmp(t.name, "const") == 0)
+            t.type = TOKEN_CONST;
+        else if (strcmp(t.name, "var") == 0)
+            t.type = TOKEN_VAR;
+        else if (strcmp(t.name, "let") == 0)
+            t.type = TOKEN_LET;
+        else if (strcmp(t.name, "float") == 0)
+            t.type = TOKEN_FLOAT_TYPE;
+        else if (strcmp(t.name, "string") == 0)
+            t.type = TOKEN_STRING_TYPE;
+        else if (strcmp(t.name, "bool") == 0)
+            t.type = TOKEN_BOOL_TYPE;
+        else if (strcmp(t.name, "default") == 0)
+            t.type = TOKEN_DEFAULT;
+        else if (strcmp(t.name, "for") == 0 || strcmp(t.name, "fr") == 0)
+            t.type = TOKEN_FOR;
+        else if (strcmp(t.name, "switch") == 0)
+            t.type = TOKEN_SWITCH;
+        else if (strcmp(t.name, "case") == 0)
+            t.type = TOKEN_CASE;
+        else if (strcmp(t.name, "try") == 0)
+            t.type = TOKEN_TRY;
+        else if (strcmp(t.name, "catch") == 0)
+            t.type = TOKEN_CATCH;
+        else if (strcmp(t.name, "throw") == 0)
+            t.type = TOKEN_THROW;
+        else if (strcmp(t.name, "class") == 0)
+            t.type = TOKEN_CLASS;
+        else if (strcmp(t.name, "public") == 0)
+            t.type = TOKEN_PUBLIC;
+        else if (strcmp(t.name, "private") == 0)
+            t.type = TOKEN_PRIVATE;
+        else if (strcmp(t.name, "void") == 0)
+            t.type = TOKEN_VOID;
         else
             t.type = TOKEN_ID;
         return t;
@@ -187,6 +237,14 @@ Token nextToken()
     }
 
     // Operator
+    if (c == '=' && peekChar() == '>')
+    {
+        t.type = TOKEN_ARROW;
+        nextChar();
+        nextChar();
+        return t;
+    }
+
     if (c == '=' && peekChar() == '=')
     {
         t.type = TOKEN_EQ;
@@ -322,6 +380,9 @@ Token nextToken()
         break;
     case ',':
         t.type = TOKEN_COMMA;
+        break;
+    case ';':
+        t.type = TOKEN_SEMICOLON;
         break;
     case '[':
         t.type = TOKEN_LEFTBRACKET;

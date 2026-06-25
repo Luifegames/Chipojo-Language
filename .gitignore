@@ -1,3 +1,18 @@
+# Binaries
+chipojo
 *.o
 *.exe
-*.chp
+*.vsix
+
+# Build artifacts
+obj/
+
+# IDE
+.vscode/
+
+# Chipojo packages
+chpm_modules/
+
+# Agent/Codex configs
+.agents/
+.codex/

@@ -1,0 +1,4 @@
+// my-project v1.0.0
+import math from "math"
+
+show(math)

@@ -2,8 +2,27 @@
 #include "error.h"
 
 #include <ctype.h>
+#include <math.h>
 
-Value string_upper(Value *args, int arg_count, int line)
+static Value string_upper(Value *args, int arg_count, int line);
+static Value string_lower(Value *args, int arg_count, int line);
+static Value size_get(Value *args, int arg_count, int line);
+static Value dict_has(Value *args, int arg_count, int line);
+static Value dict_getter(Value *args, int arg_count, int line);
+static Value dict_setter(Value *args, int arg_count, int line);
+static Value list_getter(Value *args, int arg_count, int line);
+static Value list_add(Value *args, int arg_count, int line);
+static Value list_pop(Value *args, int arg_count, int line);
+static Value list_is_empty(Value *args, int arg_count, int line);
+static Value list_insert(Value *args, int arg_count, int line);
+static Value list_remove(Value *args, int arg_count, int line);
+static Value list_clear(Value *args, int arg_count, int line);
+static int value_equals(Value a, Value b);
+static Value list_contains(Value *args, int arg_count, int line);
+static Value list_find(Value *args, int arg_count, int line);
+static Value list_reverse(Value *args, int arg_count, int line);
+
+static Value string_upper(Value *args, int arg_count, int line)
 {
 
     if (arg_count != 1)
@@ -22,13 +41,13 @@ Value string_upper(Value *args, int arg_count, int line)
     for (int i = 0; result.value.str[i]; i++)
     {
         result.value.str[i] =
-            toupper(result.value.str[i]);
+            (char)toupper(result.value.str[i]);
     }
 
     return result;
 }
 
-Value string_lower(Value *args, int arg_count, int line)
+static Value string_lower(Value *args, int arg_count, int line)
 {
 
     if (arg_count != 1)
@@ -46,13 +65,13 @@ Value string_lower(Value *args, int arg_count, int line)
     for (int i = 0; result.value.str[i]; i++)
     {
         result.value.str[i] =
-            tolower(result.value.str[i]);
+            (char)tolower(result.value.str[i]);
     }
 
     return result;
 }
 
-Value size_get(Value *args, int arg_count, int line)
+static Value size_get(Value *args, int arg_count, int line)
 {
 
     if (arg_count != 1)
@@ -70,11 +89,15 @@ Value size_get(Value *args, int arg_count, int line)
     {
         result.value.num =self.value.list->count;
     }
+    else if (self.type == VAR_STRING)
+    {
+        result.value.num = (double)strlen(self.value.str);
+    }
     
     return result;
 }
 
-Value dict_has(Value *args, int arg_count, int line)
+static Value dict_has(Value *args, int arg_count, int line)
 {
 
     if (arg_count != 2)
@@ -95,10 +118,11 @@ Value dict_has(Value *args, int arg_count, int line)
     Value dict_val = dict_get(self.value.dict, key);
     if (dict_val.type != VAR_NULL)
         result.value.num = 1;
+    free_value_internals(&dict_val);
     return result;
 }
 
-Value dict_getter(Value *args, int arg_count, int line)
+static Value dict_getter(Value *args, int arg_count, int line)
 {
     if (arg_count != 2)
     {
@@ -116,7 +140,7 @@ Value dict_getter(Value *args, int arg_count, int line)
     return result;
 }
 
-Value dict_setter(Value *args, int arg_count, int line)
+static Value dict_setter(Value *args, int arg_count, int line)
 {
     if (arg_count != 3)
     {
@@ -136,7 +160,7 @@ Value dict_setter(Value *args, int arg_count, int line)
     return result;
 }
 
-Value list_getter(Value *args, int arg_count, int line)
+static Value list_getter(Value *args, int arg_count, int line)
 {
     if (arg_count != 2)
     {
@@ -149,13 +173,14 @@ Value list_getter(Value *args, int arg_count, int line)
     }
 
     Value self = args[0];
-    int index = args[1].value.num;
+    int index = (int)args[1].value.num;
     Value result = list_get(self.value.list, index);
     return result;
 }
 
-Value list_add(Value *args, int arg_count, int line)
+static Value list_add(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 2)
     {
         runtime_error("push() takes 1 arg");
@@ -169,8 +194,9 @@ Value list_add(Value *args, int arg_count, int line)
     return nullv;
 }
 
-Value list_pop(Value *args, int arg_count, int line)
+static Value list_pop(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count !=1)
     {
         runtime_error("pop() no need arg");
@@ -181,16 +207,16 @@ Value list_pop(Value *args, int arg_count, int line)
     v.type = VAR_NULL;
     if (list->count > 0)
     {
-        v = clone_value(
-            list->items[list->count - 1]);
+        v = list->items[list->count - 1]; // Move ownership
 
         list->count--;
     }
     return v;
 }
 
-Value list_is_empty(Value *args, int arg_count, int line)
+static Value list_is_empty(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 1)
     {
         runtime_error("is_empty() no need arg");
@@ -202,8 +228,9 @@ Value list_is_empty(Value *args, int arg_count, int line)
     return v;
 }
 
-Value list_insert(Value *args, int arg_count, int line)
+static Value list_insert(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 3)
     {
         runtime_error("insert(index, value)");
@@ -229,7 +256,7 @@ Value list_insert(Value *args, int arg_count, int line)
 
         list->items = realloc(
             list->items,
-            sizeof(Value) * list->capacity);
+            sizeof(Value) * (size_t)list->capacity);
     }
 
     for (int i = list->count; i > index; i--)
@@ -247,8 +274,9 @@ Value list_insert(Value *args, int arg_count, int line)
     return v;
 }
 
-Value list_remove(Value *args, int arg_count, int line)
+static Value list_remove(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 2)
     {
         runtime_error("remove(index)");
@@ -263,7 +291,7 @@ Value list_remove(Value *args, int arg_count, int line)
         runtime_error("Index out of range");
     }
 
-    Value removed = clone_value(list->items[index]);
+    Value removed = list->items[index]; // Move ownership
 
     for (int i = index; i < list->count - 1; i++)
     {
@@ -275,8 +303,9 @@ Value list_remove(Value *args, int arg_count, int line)
     return removed;
 }
 
-Value list_clear(Value *args, int arg_count, int line)
+static Value list_clear(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 1)
     {
         runtime_error("clear()");
@@ -284,6 +313,10 @@ Value list_clear(Value *args, int arg_count, int line)
 
     List *list = args[0].value.list;
 
+    for (int i = 0; i < list->count; i++)
+    {
+        free_value_internals(&list->items[i]);
+    }
     list->count = 0;
 
     Value v = {0};
@@ -292,7 +325,7 @@ Value list_clear(Value *args, int arg_count, int line)
     return v;
 }
 
-int value_equals(Value a, Value b)
+static int value_equals(Value a, Value b)
 {
     if (a.type != b.type)
         return 0;
@@ -300,7 +333,7 @@ int value_equals(Value a, Value b)
     switch (a.type)
     {
     case VAR_NUMBER:
-        return a.value.num == b.value.num;
+        return fabs(a.value.num - b.value.num) < 1e-10;
 
     case VAR_STRING:
         return strcmp(a.value.str, b.value.str) == 0;
@@ -313,8 +346,9 @@ int value_equals(Value a, Value b)
     }
 }
 
-Value list_contains(Value *args, int arg_count, int line)
+static Value list_contains(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 2)
     {
         runtime_error("contains(value)");
@@ -343,8 +377,9 @@ Value list_contains(Value *args, int arg_count, int line)
     return v;
 }
 
-Value list_find(Value *args, int arg_count, int line)
+static Value list_find(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 2)
     {
         runtime_error("find(value)");
@@ -372,8 +407,9 @@ Value list_find(Value *args, int arg_count, int line)
 
     return v;
 }
-Value list_reverse(Value *args, int arg_count, int line)
+static Value list_reverse(Value *args, int arg_count, int line)
 {
+    (void)line;
     if (arg_count != 1)
     {
         runtime_error("reverse()");
@@ -402,9 +438,41 @@ Value list_reverse(Value *args, int arg_count, int line)
 
     return v;
 }
+static Value string_get_char(Value *args, int arg_count, int line)
+{
+    if (arg_count != 2)
+    {
+        syntax_error_line("string.get(index) expects 1 argument", line);
+    }
+    Value self = args[0];
+    Value idx = args[1];
+    if (self.type != VAR_STRING)
+    {
+        syntax_error_line("string.get() called on non-string", line);
+    }
+    if (idx.type != VAR_NUMBER)
+    {
+        syntax_error_line("string.get(index) index must be a number", line);
+    }
+    int index = (int)idx.value.num;
+    int len = (int)strlen(self.value.str);
+    if (index < 0 || index >= len)
+    {
+        syntax_error_line("string.get(index) index out of range", line);
+    }
+    Value result = {0};
+    result.type = VAR_STRING;
+    result.value.str = malloc(2);
+    result.value.str[0] = self.value.str[index];
+    result.value.str[1] = '\0';
+    return result;
+}
+
 MethodEntry string_methods[] = {
     {"upper", string_upper},
     {"lower", string_lower},
+    {"size", size_get},
+    {"get", string_get_char},
     {NULL, NULL}};
 
 MethodEntry dict_methods[] = {

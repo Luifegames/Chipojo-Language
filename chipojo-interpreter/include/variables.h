@@ -18,7 +18,8 @@ typedef enum
     VAR_DICT,
     VAR_LIST,
     VAR_NATIVE,
-    VAR_NULL
+    VAR_NULL,
+    VAR_MODULE
 } VarType;
 
 
@@ -58,6 +59,8 @@ typedef struct Value
 {
     char *name;
     VarType type;
+    int exported;  // 1 if marked with export keyword
+    int is_const;  // 1 if declared with const
     union
     {
         double num;
@@ -70,6 +73,9 @@ typedef struct Value
         int start;
         char **param;
         int param_count;
+        char *buffer;
+        int is_block; // 1 for arrow block body, 0 for expression body
+        Dict *closure; // captured module scope for closures
     } func;
 
 
@@ -85,7 +91,7 @@ void list_push(List *list, Value val);
 void dict_new(char *name, Dict *dict);
 void list_new(char *name, List *list);
 void assign_string_val(char *name, char *val);
-void define_function(char *name, int start,char** params,int param_count);
+void define_function(char *name, int start, char **params, int param_count, int exported, char *buffer);
 void assign_null_val(char *name);
 Value var_value_get(char *name);
 // Value getFunction(char *name);
@@ -94,6 +100,10 @@ Value clone_value(Value v);
 void variable_set(char *name, Value value);
 void push_scope();
 void pop_scope();
+void free_value_internals(Value *val);
+Value load_module(char *name, int line);
+void save_interpreter_state(char **saved_input, int *saved_indx, int *saved_line, Token *saved_token, int *saved_scope);
+void restore_interpreter_state(char *saved_input, int saved_indx, int saved_line, Token saved_token, int saved_scope);
 
 extern Scope scope_stack[MAX_SCOPE];
 extern int scope_depth;

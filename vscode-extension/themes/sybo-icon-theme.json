@@ -1,0 +1,27 @@
+{
+  "iconDefinitions": {
+    "_chp_file": {
+      "iconPath": "../icon.svg"
+    },
+    "_chp_folder": {
+      "iconPath": "../icon.svg"
+    },
+    "_root_folder": {
+      "iconPath": "../icon.svg"
+    }
+  },
+  "fileExtensions": {
+    "chp": "_chp_file"
+  },
+  "fileNames": {
+    "main.chp": "_chp_file",
+    "index.chp": "_chp_file"
+  },
+  "languageIds": {
+    "chipojo": "_chp_file"
+  },
+  "folderNames": {
+    "chpm_modules": "_chp_folder",
+    "lib": "_chp_folder"
+  }
+}
