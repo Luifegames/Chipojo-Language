@@ -2,6 +2,13 @@
 
 **Chipojo** is a small, C-based interpreted programming language designed for learning and experimentation. This repository contains the full toolchain: interpreter, package manager, and VS Code extension.
 
+> [!NOTE]
+> Las condiciones en `if`, `elif`, `while` y `for` aceptan **ambas formas**: con y sin paréntesis.
+> ```chipojo
+> if (x > 5) { show("ok") }
+> if x > 5  { show("ok") }  // también válido
+> ```
+
 ## Components
 
 | Component | Description | Location |
@@ -19,6 +26,9 @@ cd Chipojo-Language && make
 # Run a script
 ./chipojo script.chp
 ```
+
+> [!TIP]
+> **Rama dev** — Contiene las últimas características: `switch`, `class`, `void`, `def`, arrow functions, imports nombrados y más.
 
 ## Language Overview
 

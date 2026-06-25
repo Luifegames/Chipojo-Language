@@ -12,9 +12,9 @@
 - **Arithmetic** – `+`, `-`, `*`, `/` and parentheses  
 - **Comparisons** – `==`, `!=`, `<`, `>`, `<=`, `>=` (return `1` or `0`)  
 - **Print** – `show(...)` with `+` concatenation  
-- **Conditionals** – `if`, `elif`, `else` with `{ }` blocks  
+- **Conditionals** – `if`, `elif`, `else` with `{ }` blocks (parentheses opcionales en la condición)  
 - **Switch** – `switch` / `case` / `default` control flow  
-- **Loops** – `while`, `for`, and the alias `mientras`  
+- **Loops** – `while`, `for`, and the alias `mientras` (parentheses opcionales en la condición)  
 - **Functions** – `func` or `def`, parameters, return values, recursion, arrow functions (`=>`)  
 - **Classes** – `class` with `public` / `private` members and `void` methods  
 - **Lists** – `[v1, v2, v3]` with dynamic methods (`.push()`, `.pop()`, `.size()`, etc.)  
@@ -24,6 +24,13 @@
 - **Modules / Packages** – `import` / `export`, scoped packages (`@creator/module`), named imports: `import { hello } from "module"`  
 - **File extension** – `.chp`  
 - **Version** – `chipojo -v` shows ASCII art
+
+> [!NOTE]
+> Las condiciones en `if`, `elif`, `while` y `for` **no requieren paréntesis obligatorios**. Ambas formas son válidas:
+> ```chipojo
+> if (x > 5) { ... }  // estilo C
+> if x > 5 { ... }    // también funciona
+> ```
 
 ## Building
 
@@ -47,6 +54,10 @@ Show version:
 ```bash
 ./chipojo -v
 ```
+
+> [!IMPORTANT]
+> Los paquetes con alcance (`@creator/module`) permiten imports cortos: `import module from "module"`.  
+> También puedes importar funciones específicas: `import { hello } from "module"`.
 
 ## Packages
 
@@ -398,6 +409,9 @@ while i < 10 {
 ```
 This program prints the first 10 Fibonacci numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
 
+> [!TIP]
+> **Nuevo en v0.7.0 (dev):** `switch`, `class`, `void`, `def`, arrow functions, alcances con `@creator`, e imports nombrados. ¡Mira las secciones nuevas abajo!
+
 ## Switch
 
 Chipojo supports `switch` / `case` / `default` for multi-branch control flow:
@@ -469,6 +483,9 @@ Install the **Chipojo Language** extension (v0.3.0+) for:
 - Language configuration (bracket matching, auto-closing pairs, comment toggling)
 
 Install via the VSIX file in `chipojo-vscode/` or download from the releases page.
+
+> [!WARNING]
+> Las funciones exportadas actualmente **no capturan variables privadas del módulo** (closures/module environments aún no implementados). Los paquetes generados usan metadatos literales hasta que se implementen.
 
 ## License
 MIT – free to use and modify.
