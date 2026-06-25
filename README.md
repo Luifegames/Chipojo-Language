@@ -22,7 +22,7 @@
 - **Mostrar** – `show(...)` con concatenación `+`
 
 > [!TIP]
-> **Nuevo:** `switch`, `class`, `void`, `def`, arrow functions (`=>`), imports nombrados, control de errores, clases exportaciones de funciones y más.
+> **Nuevo:** `switch`, `class`, `void`, `def`, arrow functions (`=>`), imports nombrados, control de errores, clases, exportaciones de funciones y más.
 
 - **Condicionales** – `if`, `elif`, `else` con `{ }`
 - **Switch** – `switch` / `case` / `default`
