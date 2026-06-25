@@ -150,7 +150,7 @@ try {
 
 ## Extensión VS Code
 
-La extensión **Chipojo Language** (`extension/`) aporta:
+La extensión **Chipojo Language** (`vscode-extension/`) aporta:
 
 - Resaltado de sintaxis
 - Snippets de código
@@ -178,17 +178,17 @@ Los scripts en `test/` son ejemplos prácticos para que veas cómo funciona el l
 
 ```
 Chipojo/
-├── backend/          # Motor del lenguaje (C)
-│   ├── src/          # Código fuente
-│   ├── include/      # Cabeceras
-│   └── lib/          # Librería estándar (.chp)
-├── extension/        # Extensión VS Code
-├── assets/           # Recursos (iconos)
-├── test/             # Scripts de prueba
-├── docs/             # Documentación
-│   └── es/           # Docs en español
-├── Makefile          # Compilar: make
-└── LICENSE           # MIT
+├── chipojo-interpreter/  # Intérprete del lenguaje (C)
+│   ├── src/              # Código fuente (.c)
+│   ├── include/          # Cabeceras (.h)
+│   └── lib/              # Librería estándar (.chp)
+├── vscode-extension/     # Extensión VS Code
+├── assets/               # Recursos (iconos)
+├── test/                 # Scripts de prueba
+├── docs/                 # Documentación
+│   └── es/               # Docs en español
+├── Makefile              # Compilar: make
+└── LICENSE               # MIT
 ```
 
 ## Licencia

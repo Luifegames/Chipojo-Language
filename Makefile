@@ -1,16 +1,16 @@
 CC = gcc
-CFLAGS = -Wall -Ibackend/include -g
+CFLAGS = -Wall -Ichipojo-interpreter/include -g
 OBJ_DIR = obj
 BIN = chipojo
 
-SRCS = $(wildcard backend/src/*.c)
-OBJS = $(patsubst backend/src/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+SRCS = $(wildcard chipojo-interpreter/src/*.c)
+OBJS = $(patsubst chipojo-interpreter/src/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 
 .PHONY: all clean test
 
 all: $(BIN)
 
-$(OBJ_DIR)/%.o: backend/src/%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: chipojo-interpreter/src/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
