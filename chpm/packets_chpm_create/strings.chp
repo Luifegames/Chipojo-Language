@@ -1,0 +1,1 @@
+export hello = "Hello from strings module"

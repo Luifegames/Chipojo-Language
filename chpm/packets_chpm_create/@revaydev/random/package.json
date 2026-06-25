@@ -1,0 +1,9 @@
+{
+  "name": "@revaydev/random",
+  "version": "1.0.0",
+  "description": "",
+  "author": "revaydev",
+  "license": "MIT",
+  "main": "main.chp",
+  "dependencies": {}
+}

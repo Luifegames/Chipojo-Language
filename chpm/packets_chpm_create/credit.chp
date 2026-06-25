@@ -1,0 +1,6 @@
+export makeCreditPackage = () => {
+    const name = "RevayDev_CREDIT"    
+    const version = "1.0.0"
+    
+    show("Credits package created is: ", name, " version: ", version)
+}

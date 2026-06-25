@@ -1,0 +1,6 @@
+// @revaydev/random v1.0.0
+export default package {
+    func hello(name) {
+        return "Hello " + name + " from @revaydev/random"
+    }
+}
