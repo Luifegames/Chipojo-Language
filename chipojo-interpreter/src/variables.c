@@ -1,8 +1,9 @@
 #include "variables.h"
-#include "io.h"
+#include "chpio.h"
 #include "lexer.h"
 #include "parser.h"
 #include <ctype.h>
+#include <io.h>
 #include <dirent.h>
 
 #define MAX_VARS 100

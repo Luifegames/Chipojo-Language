@@ -16,3 +16,5 @@ chpm_modules/
 # Agent/Codex configs
 .agents/
 .codex/
+example.chp
+*.chp

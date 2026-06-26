@@ -1,5 +1,6 @@
 #include "chipojo.h"
-#include "io.h"
+#include "chpio.h"
+#include "direct.h"
 #include "lexer.h"
 #include "native.h"
 #include "parser.h"
