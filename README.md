@@ -1,60 +1,60 @@
 <div align="center">
-<img src="assets/banner.png" alt="Logo Chipojo Language" width="450" />
+<img src="assets/icon.svg" alt="Logo Chipojo Language" width="450" />
 </div>
 
-**Chipojo** es un lenguaje de programación interpretado, pequeño y escrito en C, diseñado para aprender y experimentar.
+**Chipojo** is a small interpreted programming language written in C, designed for learning and experimentation.
 
 > [!NOTE]
-> Las condiciones en `if`, `elif`, `while` y `for` **no requieren paréntesis obligatorios**. Ambas formas son válidas:
+> Conditions in `if`, `elif`, `while` and `for` **do not require mandatory parentheses**. Both forms are valid:
 >
 > ```chipojo
-> if (x > 5) { ... }  // estilo C
-> if x > 5  { ... }   // también funciona
+> if (x > 5) { ... }  // C style
+> if x > 5  { ... }   // also works
 > ```
 
-## Características
+## Features
 
-- **Variables** – enteros, flotantes, booleanos, cadenas, listas, diccionarios
-- **Asignación** – `=`, compuesta: `+=`, `-=`, `*=`, `/=`, incremento/decremento: `++`, `--`
-- **Operadores lógicos** – `and`, `or`, `not`
-- **Aritmética** – `+`, `-`, `*`, `/` y paréntesis
-- **Comparaciones** – `==`, `!=`, `<`, `>`, `<=`, `>=` (devuelven `1` o `0`)
-- **Mostrar** – `show(...)` con concatenación `+`
+- **Variables** – integers, floats, booleans, strings, lists, dictionaries
+- **Assignment** – `=`, compound: `+=`, `-=`, `*=`, `/=`, increment/decrement: `++`, `--`
+- **Logical operators** – `and`, `or`, `not`
+- **Arithmetic** – `+`, `-`, `*`, `/` and parentheses
+- **Comparisons** – `==`, `!=`, `<`, `>`, `<=`, `>=` (return `1` or `0`)
+- **Output** – `show(...)` with concatenation `+`
 
 > [!TIP]
-> **Nuevo:** `switch`, `class`, `void`, `def`, arrow functions (`=>`), imports nombrados, control de errores, clases, exportaciones de funciones y más.
+> **New:** `switch`, `class`, `void`, `def`, arrow functions (`=>`), named imports, error handling, classes, function exports, and more.
 
-- **Condicionales** – `if`, `elif`, `else` con `{ }`
+- **Conditionals** – `if`, `elif`, `else` with `{ }`
 - **Switch** – `switch` / `case` / `default`
-- **Bucles** – `while`, `for`
-- **Funciones** – `func` o `def`, parámetros, retorno, recursión, arrow functions (`=>`)
-- **Clases** – `class` con miembros `public` / `private` y métodos `void`
-- **Listas** – `[v1, v2, v3]` con métodos: `.push()`, `.pop()`, `.size()`, `.get()`, `.insert()`, `.remove()`, `.contains()`, `.find()`, `.reverse()`, `.clear()`, `.is_empty()`
-- **Diccionarios** – `{key: value}` con `.get()`, `.set()`, `.has()`
-- **Propiedades** – `.length` en cadenas, listas y diccionarios
-- **Errores** – `try { ... } catch (err) { ... }` y `throw`
-- **Módulos** – `import` / `export`, imports nombrados: `import { hello } from "modulo"`
+- **Loops** – `while`, `for`
+- **Functions** – `func` or `def`, parameters, return, recursion, arrow functions (`=>`)
+- **Classes** – `class` with `public` / `private` members and `void` methods
+- **Lists** – `[v1, v2, v3]` with methods: `.push()`, `.pop()`, `.size()`, `.get()`, `.insert()`, `.remove()`, `.contains()`, `.find()`, `.reverse()`, `.clear()`, `.is_empty()`
+- **Dictionaries** – `{key: value}` with `.get()`, `.set()`, `.has()`
+- **Properties** – `.length` on strings, lists and dictionaries
+- **Errors** – `try { ... } catch (err) { ... }` and `throw`
+- **Modules** – `import` / `export`, named imports: `import { hello } from "module"`
 
 > [!IMPORTANT]
-> Los nombres de los módulos se buscan en: `./nombre.chp` → `./nombre/main.chp` → `./chpm_modules/nombre.chp` → `./chpm_modules/nombre/main.chp`
+> Module names are looked up in: `./name.chp` → `./name/main.chp` → `./chpm_modules/name.chp` → `./chpm_modules/name/main.chp`
 
-- **Extensión** – `.chp`
-- **Versión** – `chipojo -v` muestra el ASCII art
+- **Extension** – `.chp`
+- **Version** – `chipojo -v` shows ASCII art
 
-## Compilar
+## Compiling
 
 ### Linux / macOS
 
 ```bash
-git clone <repo>
+git clone https://github.com/Luifegames/Chipojo-Language
 cd Chipojo
 make
 ```
 
-El ejecutable `chipojo` se genera en la raíz del proyecto.
+The `chipojo` executable is generated in the project root.
 
 > [!TIP]
-> Para usar `chipojo` desde cualquier terminal, agrega la carpeta al `PATH`:
+> To use `chipojo` from any terminal, add the folder to your `PATH`:
 >
 > ```bash
 > echo 'export PATH=$PATH:'$(pwd) >> ~/.bashrc
@@ -63,92 +63,92 @@ El ejecutable `chipojo` se genera en la raíz del proyecto.
 
 ### Windows
 
-Opción A — **MinGW / MSYS2:**
+Option A — **MinGW / MSYS2:**
 
 ```bash
 cd Chipojo
 gcc -Ichipojo-interpreter/include chipojo-interpreter/src/*.c -o chipojo.exe
 ```
 
-Opción B — **WSL (Windows Subsystem for Linux):**
+Option B — **WSL (Windows Subsystem for Linux):**
 
 ```bash
-# Instala WSL con Ubuntu, luego:
+# Install WSL with Ubuntu, then:
 cd Chipojo
 make
 ./chipojo script.chp
 ```
 
 > [!NOTE]
-> El `Makefile` usa `gcc` y está pensado para Linux/WSL. En Windows nativo usa MinGW o compila con WSL.
+> The `Makefile` uses `gcc` and is intended for Linux/WSL. On native Windows, use MinGW or compile with WSL.
 
-## Usar
+## Usage
 
 ```bash
 ./chipojo script.chp
-./chipojo -v          # versión
+./chipojo -v          # version
 ```
 
-## Ejemplo
+## Example
 
 ```chipojo
-nombre = "Chipojo"
-tamano = 10
+name = "Chipojo"
+size = 10
 
-if (tamano >= 10) {
-    show("Bienvenido a " + nombre + "!")
+if (size >= 10) {
+    show("Welcome to " + name + "!")
 } else {
-    show("muy pequeño")
+    show("too small")
 }
 
 show("2 + 2 = " + (2 + 2))
 ```
 
 ```text
-Bienvenido a Chipojo!
+Welcome to Chipojo!
 2 + 2 = 4
 ```
 
 ## Switch
 
 ```chipojo
-switch (valor) {
-    case 1 { show("uno") }
-    case 2 { show("dos") }
-    default { show("otro") }
+switch (value) {
+    case 1: { show("one") }
+    case 2: { show("two") }
+    default: { show("other") }
 }
 ```
 
-## Clases
+## Classes
 
 ```chipojo
-class Persona {
-    public nombre
-    public edad
+class Person {
+    public name
+    public age
     private id
 
-    void init(nombre, edad) {
-        this.nombre = nombre
-        this.edad = edad
+    void init(name, age) {
+        this.name = name
+        this.age = age
     }
 
-    func saludar() {
-        show("Hola, soy " + this.nombre)
+    func greet() {
+        show("Hello, I'm " + this.name)
     }
 }
 
-p = Persona("Ana", 25)
-p.saludar()
+p = Person("Ana", 25)
+p.greet()
 ```
 
 ## Arrow Functions
 
 ```chipojo
-doble = x => x * 2
-suma = (a, b) => a + b
+double = x => x * 2
+sum = (a, b) => a + b
 ```
 
-## Listas
+## Lists
 
 ```chipojo
 nums = [1, 2, 3]
@@ -159,69 +159,69 @@ nums.reverse()
 show(nums)            // [4, 3, 2, 1]
 ```
 
-## Diccionarios
+## Dictionaries
 
 ```chipojo
-persona = {"nombre": "Ana", "edad": 30}
-show(persona.nombre)    // "Ana"
-persona.edad = 31
-show(persona.has("edad")) // 1
+person = {"name": "Ana", "age": 30}
+show(person.name)    // "Ana"
+person.age = 31
+show(person.has("age")) // 1
 ```
 
-## Errores
+## Errors
 
 ```chipojo
 try {
     throw "error!"
 } catch (err) {
-    show("Capturado: " + err)
+    show("Caught: " + err)
 }
 ```
 
-## Extensión VS Code
+## VS Code Extension
 
-La extensión **Chipojo Language** (`vscode-extension/`) aporta:
+The **Chipojo Language** extension (`vscode-extension/`) provides:
 
-- Resaltado de sintaxis (keywords, strings, números, operadores, métodos)
-- Snippets de código (`if`, `while`, `for`, `switch`, `class`, `func`, `try`/`catch`, `import`, arrow functions, etc.)
-- Tema de iconos Sybo (archivos `.chp` con icono personalizado)
-- Configuración de lenguaje (bracket matching, auto-cierre, comentarios)
+- Syntax highlighting (keywords, strings, numbers, operators, methods)
+- Code snippets (`if`, `while`, `for`, `switch`, `class`, `func`, `try`/`catch`, `import`, arrow functions, etc.)
+- Sybo icon theme (`.chp` files with a custom icon)
+- Language configuration (bracket matching, auto‑closing, comments)
 
-### Instalación
+### Installation
 
 ```bash
-# Desde VS Code:
-# 1. Extensiones (Ctrl+Shift+X) → ... → Install from VSIX...
-# 2. Selecciona vscode-extension/chipojo-language-0.3.0.vsix
+# From VS Code:
+# 1. Extensions (Ctrl+Shift+X) → ... → Install from VSIX...
+# 2. Select vscode-extension/chipojo-language-0.3.0.vsix
 
-# O desde terminal:
+# Or from terminal:
 code --install-extension vscode-extension/chipojo-language-0.3.0.vsix
 ```
 
 > [!TIP]
-> El `.vsix` ya está empaquetado en `vscode-extension/`. Solo impórtalo y ya.
+> The `.vsix` is already packaged in `vscode-extension/`. Just import it and you're done.
 
-## Módulos y Closures
+## Modules and Closures
 
-Chipojo soporta módulos con `import`/`export`. Las funciones exportadas **capturan el ámbito del módulo** (closures), permitiendo acceder a variables privadas del módulo:
+Chipojo supports modules with `import`/`export`. Exported functions **capture the module scope** (closures), allowing access to private module variables:
 
 ```chipojo
-// modulo.chp
-privado = 42
+// module.chp
+private = 42
 
-export func obtener() {
-    return privado  // captura 'privado' del módulo
+export func get() {
+    return private  // captures 'private' from the module
 }
 ```
 
 ```chipojo
 // main.chp
-import modulo
-show(modulo.obtener())  // 42
+import module
+show(module.get())  // 42
 ```
 
 > [!TIP]
-> Las funciones flecha (`=>`) también capturan closures cuando se exportan desde un módulo.
+> Arrow functions (`=>`) also capture closures when exported from a module.
 
 ## Tests
 
@@ -229,29 +229,30 @@ show(modulo.obtener())  // 42
 make test
 ```
 
-Ejecuta todos los scripts `.chp` en `test/` para verificar el funcionamiento.
+Runs all `.chp` scripts in `test/` to verify functionality.
 
-## Probar
+## Try it out
 
-Los scripts en `test/` son ejemplos prácticos para que veas cómo funciona el lenguaje y puedas experimentar.
+The scripts in `test/` are practical examples so you can see how the language works and experiment.
 
-## Estructura del proyecto
+## Project structure
 
 ```
 Chipojo/
-├── chipojo-interpreter/  # Intérprete del lenguaje (C)
-│   ├── src/              # Código fuente (.c)
-│   ├── include/          # Cabeceras (.h)
-│   └── lib/              # Librería estándar (.chp)
-├── vscode-extension/     # Extensión VS Code
-├── assets/               # Recursos (iconos)
-├── test/                 # Scripts de prueba
-├── docs/                 # Documentación
-│   └── es/               # Docs en español
-├── Makefile              # Compilar: make
+├── chipojo-interpreter/  # Language interpreter (C)
+│   ├── src/              # Source code (.c)
+│   ├── include/          # Headers (.h)
+│   └── lib/              # Standard library (.chp)
+├── vscode-extension/     # VS Code extension
+├── assets/               # Resources (icons)
+├── test/                 # Test scripts
+├── docs/                 # Documentation
+│   └── es/               # Spanish docs
+├── Makefile              # Compile: make
 └── LICENSE               # MIT
 ```
 
-## Licencia
+## License
 
-MIT – libre de usar y modificar.
+MIT – free to use and modify.
+```
