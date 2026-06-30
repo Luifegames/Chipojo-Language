@@ -496,6 +496,24 @@ Value dict_get(Dict *d, char *key)
     return null_val;
 }
 
+Value *get_var_value_ref(char *name)
+{
+    for (int d = scope_depth; d >= 0; d--)
+    {
+        Scope *sc = &scope_stack[d];
+
+        for (int i = 0; i < sc->count; i++)
+        {
+            if (strcmp(sc->vars[i]->name, name) == 0)
+            {
+                return sc->vars[i];
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void assign_number_val(char *name, double num)
 {
     Scope *sc = &scope_stack[scope_depth];
@@ -616,6 +634,18 @@ void assign_null_val(char *name)
     new_var->type = VAR_NULL;
     new_var->exported = 0;
     sc->vars[sc->count++] = new_var;
+    }
+
+    Value *get_dict_ref(Dict *d, char *key)
+    {
+        for (int i = 0; i < d->count; i++)
+        {
+            if (strcmp(d->entries[i].key, key) == 0)
+            {
+                return d->entries[i].value;
+            }
+        }
+        return NULL;
     }
 
 Value var_value_get(char *name)
