@@ -1016,13 +1016,13 @@
 
                 strcpy(member,current_token.name);
 
-                if (current_token.type != TOKEN_ID && current_token.type != TOKEN_DEFAULT)
+                // if (current_token.type != TOKEN_ID && current_token.type != TOKEN_DEFAULT)
                     consume(TOKEN_ID, "Expected identifier");
-                else
-                    forward();
+                // else
+                //     forward();
 
                 // For dict/module, get property first, then handle ( as function call
-                if (base.type == VAR_DICT || base.type == VAR_MODULE)
+                if (base.type == VAR_MODULE)
                 {
                     base = get_property(base, member, current_token.line);
                     // If next token is (, it will be handled by the function call code below
@@ -1183,6 +1183,7 @@
             }
 
             Value result = dict_get(object.value.dict, property);
+            
             if (result.type == VAR_NULL)
             {
                 char message[128];
