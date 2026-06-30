@@ -25,10 +25,13 @@
     Value logical_and(void);
     Value comparison_op(Value left, TokenType op, Value right,int line);
     Value parse_postfix(Value base);
+    Value *parse_postfix_ref(Value *base);
     Value get_property(Value object, char *property, int line);
     static Value define_list(void);
     static int is_truthy(Value v);
+    void assign_compound_ref(Value *target, TokenType op, Value rhs, int line);
     void while_stmt(void);
+    void set_value(Value *target, Value value);
     void for_stmt(void);
     void switch_stmt(void);
     void try_stmt(void);
@@ -285,6 +288,14 @@
         return val_ret;
     }
 
+    void set_value(Value *target, Value value)
+    {
+        if (target->type == VAR_STRING)
+            free(target->value.str);
+
+        *target = clone_value(value);
+    }
+
     void while_stmt(void)
     {
         int after_cond = indx;
@@ -494,6 +505,36 @@
         }
     }
 
+    void assign_compound_ref(Value *target, TokenType op, Value rhs, int line)
+    {
+        if (target->type != VAR_NUMBER || rhs.type != VAR_NUMBER)
+            runtime_error("Compound assignment requires numbers");
+
+        double current = target->value.num;
+        double result = current;
+
+        switch (op)
+        {
+        case TOKEN_PLUS_ASSIGN:
+            result = current + rhs.value.num;
+            break;
+        case TOKEN_MINUS_ASSIGN:
+            result = current - rhs.value.num;
+            break;
+        case TOKEN_MULT_ASSIGN:
+            result = current * rhs.value.num;
+            break;
+        case TOKEN_DIV_ASSIGN:
+            if (rhs.value.num == 0)
+                syntax_error_line("Division by zero", line);
+            result = current / rhs.value.num;
+            break;
+        default:
+            return;
+        }
+
+        target->value.num = result;
+    }
     void skip_block()
     {
         int brace_count = 1;
@@ -1061,6 +1102,76 @@
         return base;
     }
 
+    Value *parse_postfix_ref(Value *base)
+    {
+        Value *current = base;
+
+        while (1)
+        {
+            // Dictionary/property access
+            if (current_token.type == TOKEN_DOT)
+            {
+                consume(TOKEN_DOT, "Expected '.'");
+
+                char member[64];
+                strcpy(member, current_token.name);
+
+                consume(TOKEN_ID, "Expected identifier");
+
+                if (current->type != VAR_DICT)
+                {
+                    runtime_error("Property access on non-dictionary");
+                }
+
+                current = get_dict_ref(current->value.dict, member);
+
+                if (current == NULL)
+                {
+                    char msg[128];
+                    sprintf(msg, "Property '%s' not found", member);
+                    runtime_error(msg);
+                }
+
+                continue;
+            }
+
+            // List index access
+            if (current_token.type == TOKEN_LEFTBRACKET)
+            {
+                consume(TOKEN_LEFTBRACKET, "Expected '['");
+
+                Value idx = expression();
+
+                consume(TOKEN_RIGHTBRACKET, "Expected ']'");
+
+                if (current->type != VAR_LIST)
+                {
+                    runtime_error("Indexing non-list");
+                }
+
+                if (idx.type != VAR_NUMBER)
+                {
+                    runtime_error("List index must be number");
+                }
+
+                int index = (int)idx.value.num;
+
+                if (index < 0 || index >= current->value.list->count)
+                {
+                    runtime_error("Index out of bounds");
+                }
+
+                current = &current->value.list->items[index];
+
+                continue;
+            }
+
+            break;
+        }
+
+        return current;
+    }
+
     Value get_property(Value object, char *property, int line){
         if (object.type == VAR_DICT || object.type == VAR_MODULE){
             if (strcmp(property, "length") == 0)
@@ -1501,9 +1612,32 @@
                 return;
             }
 
-            if (peek_next_token_type() == TOKEN_DOT) // is a dictionary
+            if (peek_next_token_type() == TOKEN_DOT || peek_next_token_type() == TOKEN_LEFTBRACKET) // is a dictionary
             {
-                factor();
+                forward();
+
+                Value *base = get_var_value_ref(name);
+                if (base == NULL)
+                    undefined_variable_error(name, current_token.line);
+
+                Value *target = parse_postfix_ref(base);
+
+                if (current_token.type == TOKEN_PLUS_ASSIGN ||
+                    current_token.type == TOKEN_MINUS_ASSIGN ||
+                    current_token.type == TOKEN_MULT_ASSIGN ||
+                    current_token.type == TOKEN_DIV_ASSIGN)
+                {
+                    TokenType op = current_token.type;
+                    int line = current_token.line;
+                    forward();
+                    Value rhs = expression();
+                    assign_compound_ref(target, op, rhs, line);
+                    return;
+                }
+
+                consume(TOKEN_ASIGN, "Expected '='");
+                Value val = expression();
+                set_value(target, val);
                 return;
             }
 
